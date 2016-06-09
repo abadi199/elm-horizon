@@ -1,0 +1,19 @@
+{
+  "name": "example_app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "hz serve --dev | elm-live src/Main.elm --output dist/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abadi199/elm-horizon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abadi199/elm-horizon/issues"
+  },
+  "homepage": "https://github.com/abadi199/elm-horizon#readme"
+}

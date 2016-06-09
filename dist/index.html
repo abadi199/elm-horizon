@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    
+   
+    <script src="horizon/horizon.js"></script>
+    <script src="bundle.js"></script>
+    <script>
+      var horizon = Horizon();
+      var chat = horizon('elm_chat');
+      
+      var app = Elm.Main.fullscreen();
+      app.ports.send.subscribe(message => {
+        console.log("send",message);
+        chat.store(message);
+      });
+      
+      chat.limit(4).watch().subscribe(message => { 
+        console.log("newMessage", message)
+        app.ports.newMessage.send(message);  
+      });
+
+    </script>   
+  </body>
+</html>
