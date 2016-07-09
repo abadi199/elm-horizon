@@ -7226,14 +7226,16 @@ var _user$project$Main$viewMessage = function (msg) {
 			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				_elm_lang$html$Html$text(msg.value)
+				_elm_lang$html$Html$text(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					msg.name,
+					A2(_elm_lang$core$Basics_ops['++'], ':', msg.value)))
 			]));
 };
 var _user$project$Main$onEnter = function (message) {
 	var filterKey = function (keyCode) {
-		return _elm_lang$core$Native_Utils.eq(
-			A2(_elm_lang$core$Debug$log, '', keyCode),
-			10) ? _elm_lang$core$Result$Err('numeric') : _elm_lang$core$Result$Ok(keyCode);
+		return (!_elm_lang$core$Native_Utils.eq(keyCode, 13)) ? _elm_lang$core$Result$Err('enter') : _elm_lang$core$Result$Ok(keyCode);
 	};
 	var decoder = A2(
 		_elm_lang$core$Json_Decode$map,
@@ -7243,69 +7245,88 @@ var _user$project$Main$onEnter = function (message) {
 		A2(_elm_lang$core$Json_Decode$customDecoder, _elm_lang$html$Html_Events$keyCode, filterKey));
 	return A2(_elm_lang$html$Html_Events$on, 'keyup', decoder);
 };
+var _user$project$Main$init = {
+	ctor: '_Tuple2',
+	_0: {
+		name: '',
+		input: {name: '', value: ''},
+		messages: _elm_lang$core$Native_List.fromArray(
+			[])
+	},
+	_1: _elm_lang$core$Platform_Cmd$none
+};
 var _user$project$Main$send = _elm_lang$core$Native_Platform.outgoingPort(
 	'send',
 	function (v) {
-		return {value: v.value};
+		return {name: v.name, value: v.value};
+	});
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p1 = A2(_elm_lang$core$Debug$log, 'update', msg);
+		switch (_p1.ctor) {
+			case 'Input':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							input: {name: model.name, value: _p1._0}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Send':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							input: {name: model.name, value: ''}
+						}),
+					_1: _user$project$Main$send(model.input)
+				};
+			case 'NewMessage':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{messages: _p1._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{name: _p1._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
 	});
 var _user$project$Main$newMessage = _elm_lang$core$Native_Platform.incomingPort(
 	'newMessage',
 	_elm_lang$core$Json_Decode$list(
 		A2(
 			_elm_lang$core$Json_Decode$andThen,
-			A2(_elm_lang$core$Json_Decode_ops[':='], 'value', _elm_lang$core$Json_Decode$string),
-			function (value) {
-				return _elm_lang$core$Json_Decode$succeed(
-					{value: value});
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'name', _elm_lang$core$Json_Decode$string),
+			function (name) {
+				return A2(
+					_elm_lang$core$Json_Decode$andThen,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'value', _elm_lang$core$Json_Decode$string),
+					function (value) {
+						return _elm_lang$core$Json_Decode$succeed(
+							{name: name, value: value});
+					});
 			})));
-var _user$project$Main$Model = F2(
+var _user$project$Main$Model = F3(
+	function (a, b, c) {
+		return {name: a, input: b, messages: c};
+	});
+var _user$project$Main$Message = F2(
 	function (a, b) {
-		return {input: a, messages: b};
+		return {name: a, value: b};
 	});
-var _user$project$Main$init = {
-	ctor: '_Tuple2',
-	_0: A2(
-		_user$project$Main$Model,
-		{value: ''},
-		_elm_lang$core$Native_List.fromArray(
-			[])),
-	_1: _elm_lang$core$Platform_Cmd$none
-};
-var _user$project$Main$update = F2(
-	function (msg, _p1) {
-		var _p2 = _p1;
-		var _p5 = _p2.messages;
-		var _p4 = _p2.input;
-		var _p3 = A2(_elm_lang$core$Debug$log, 'update', msg);
-		switch (_p3.ctor) {
-			case 'Input':
-				return {
-					ctor: '_Tuple2',
-					_0: A2(
-						_user$project$Main$Model,
-						{value: _p3._0},
-						_p5),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Send':
-				return {
-					ctor: '_Tuple2',
-					_0: A2(
-						_user$project$Main$Model,
-						{value: ''},
-						_p5),
-					_1: _user$project$Main$send(_p4)
-				};
-			default:
-				return {
-					ctor: '_Tuple2',
-					_0: A2(_user$project$Main$Model, _p4, _p3._0),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-		}
-	});
-var _user$project$Main$Message = function (a) {
-	return {value: a};
+var _user$project$Main$UpdateName = function (a) {
+	return {ctor: 'UpdateName', _0: a};
 };
 var _user$project$Main$NewMessage = function (a) {
 	return {ctor: 'NewMessage', _0: a};
@@ -7325,6 +7346,16 @@ var _user$project$Main$view = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(
+				_elm_lang$html$Html$input,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$placeholder('username'),
+						_elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateName),
+						_elm_lang$html$Html_Attributes$value(model.name)
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[])),
+				_elm_lang$core$Native_Utils.eq(model.name, '') ? _elm_lang$html$Html$text('') : A2(
 				_elm_lang$html$Html$input,
 				_elm_lang$core$Native_List.fromArray(
 					[

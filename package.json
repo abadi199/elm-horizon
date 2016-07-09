@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "hz serve --dev | elm-live src/Main.elm --output dist/bundle.js"
+    "start": "hz serve --dev | elm-live src/Main.elm --output dist/bundle.js --dir=./dist/"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/abadi199/elm-horizon/issues"
   },
-  "homepage": "https://github.com/abadi199/elm-horizon#readme"
+  "homepage": "https://github.com/abadi199/elm-horizon#readme",
+  "devDependencies": {
+    "elm-live": "^2.4.1"
+  }
 }

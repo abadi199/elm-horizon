@@ -6,23 +6,22 @@
   <body>
     
    
-    <script src="horizon/horizon.js"></script>
+    <script src="//localhost:8181/horizon/horizon.js"></script>
     <script src="bundle.js"></script>
     <script>
-      var horizon = Horizon();
-      var chat = horizon('elm_chat');
+      var horizon = Horizon({host: 'localhost:8181'});
+      var hz = horizon("chat");
       
       var app = Elm.Main.fullscreen();
-      app.ports.send.subscribe(message => {
-        console.log("send",message);
-        chat.store(message);
-      });
-      
-      chat.limit(4).watch().subscribe(message => { 
-        console.log("newMessage", message)
-        app.ports.newMessage.send(message);  
+      app.ports.send.subscribe(data => {
+        console.log(data);
+        hz.store(data);
       });
 
+      hz.watch().subscribe(message => { 
+        app.ports.newMessage.send(message);  
+      });
+      
     </script>   
   </body>
 </html>

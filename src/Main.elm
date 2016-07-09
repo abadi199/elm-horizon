@@ -21,18 +21,21 @@ main =
 
 
 type alias Model =
-    { input : Message
+    { name : String
+    , input : Message
     , messages : List Message
     }
 
 
 type alias Message =
-    { value : String }
+    { name : String
+    , value : String
+    }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model { value = "" } [], Cmd.none )
+    ( { name = "", input = { name = "", value = "" }, messages = [] }, Cmd.none )
 
 
 
@@ -43,19 +46,23 @@ type Msg
     = Input String
     | Send
     | NewMessage (List Message)
+    | UpdateName String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg { input, messages } =
+update msg model =
     case Debug.log "update" msg of
         Input newInput ->
-            ( Model { value = newInput } messages, Cmd.none )
+            ( { model | input = { name = model.name, value = newInput } }, Cmd.none )
 
         Send ->
-            ( Model { value = "" } messages, send input )
+            ( { model | input = { name = model.name, value = "" } }, send model.input )
 
         NewMessage msgs ->
-            ( Model input msgs, Cmd.none )
+            ( { model | messages = msgs }, Cmd.none )
+
+        UpdateName newName ->
+            ( { model | name = newName }, Cmd.none )
 
 
 
@@ -84,12 +91,17 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ input
-            [ onInput Input
-            , value model.input.value
-            , onEnter Send
-            ]
-            []
+        [ input [ placeholder "username", onInput UpdateName, value model.name ] []
+        , if model.name == "" then
+            text ""
+          else
+            (input
+                [ onInput Input
+                , value model.input.value
+                , onEnter Send
+                ]
+                []
+            )
         , button [ onClick Send ] [ text "Send" ]
         , div [] (List.map viewMessage (List.reverse model.messages))
         ]
@@ -100,8 +112,8 @@ onEnter message =
     let
         filterKey =
             (\keyCode ->
-                if (Debug.log "" keyCode) == 10 then
-                    Err "numeric"
+                if keyCode /= 13 then
+                    Err "enter"
                 else
                     Ok keyCode
             )
@@ -116,4 +128,4 @@ onEnter message =
 
 viewMessage : Message -> Html msg
 viewMessage msg =
-    div [] [ text msg.value ]
+    div [] [ text <| msg.name ++ ":" ++ msg.value ]
