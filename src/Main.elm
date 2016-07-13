@@ -1,12 +1,16 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 import Html exposing (..)
 import Html.App as Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Json
+import Json.Encode as Encode
+import Horizon
+import Json.Decode.Pipeline as Decode
 
 
+main : Program Never
 main =
     Html.program
         { init = init
@@ -33,9 +37,26 @@ type alias Message =
     }
 
 
+messageDecoder : Json.Decoder Message
+messageDecoder =
+    Decode.decode Message
+        |> Decode.required "name" Json.string
+        |> Decode.required "value" Json.string
+
+
+messageEncoder : Message -> Json.Value
+messageEncoder message =
+    Encode.object
+        [ ( "name", Encode.string message.name )
+        , ( "value", Encode.string message.value )
+        ]
+
+
 init : ( Model, Cmd Msg )
 init =
-    ( { name = "", input = { name = "", value = "" }, messages = [] }, Cmd.none )
+    ( { name = "", input = { name = "", value = "" }, messages = [] }
+    , Horizon.watch "chat"
+    )
 
 
 
@@ -45,34 +66,33 @@ init =
 type Msg
     = Input String
     | Send
-    | NewMessage (List Message)
+    | NewMessage (List (Maybe Message))
     | UpdateName String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case Debug.log "update" msg of
+    case msg of
         Input newInput ->
             ( { model | input = { name = model.name, value = newInput } }, Cmd.none )
 
         Send ->
-            ( { model | input = { name = model.name, value = "" } }, send model.input )
+            ( { model | input = { name = model.name, value = "" } }
+            , Horizon.store "chat" (messageEncoder model.input)
+            )
 
         NewMessage msgs ->
-            ( { model | messages = msgs }, Cmd.none )
+            ( { model
+                | messages =
+                    msgs
+                        |> List.filterMap identity
+                        |> Debug.log ""
+              }
+            , Cmd.none
+            )
 
         UpdateName newName ->
             ( { model | name = newName }, Cmd.none )
-
-
-
--- PORTS
-
-
-port send : Message -> Cmd msg
-
-
-port newMessage : (List Message -> msg) -> Sub msg
 
 
 
@@ -81,7 +101,7 @@ port newMessage : (List Message -> msg) -> Sub msg
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    newMessage NewMessage
+    Horizon.next messageDecoder NewMessage
 
 
 

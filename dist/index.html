@@ -10,16 +10,18 @@
     <script src="bundle.js"></script>
     <script>
       var horizon = Horizon({host: 'localhost:8181'});
-      var hz = horizon("chat");
       
       var app = Elm.Main.fullscreen();
-      app.ports.send.subscribe(data => {
-        console.log(data);
-        hz.store(data);
+      app.ports.storePort.subscribe(data => {
+        var hz = horizon(data.collection);
+        hz.store(data.value);
       });
 
-      hz.watch().subscribe(message => { 
-        app.ports.newMessage.send(message);  
+      app.ports.watchPort.subscribe(collection => {
+        var hz = horizon(collection);
+        hz.watch().subscribe(message => {
+          app.ports.nextPort.send(message);  
+        });
       });
       
     </script>   
