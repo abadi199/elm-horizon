@@ -8,22 +8,12 @@
    
     <script src="//localhost:8181/horizon/horizon.js"></script>
     <script src="bundle.js"></script>
+    <script src="//localhost:8181/src/elmHorizon.js"></script>
     <script>
-      var horizon = Horizon({host: 'localhost:8181'});
-      
+      var horizon = Horizon({ host: 'localhost:8181' });
       var app = Elm.Main.fullscreen();
-      app.ports.storePort.subscribe(data => {
-        var hz = horizon(data.collection);
-        hz.store(data.value);
-      });
-
-      app.ports.watchPort.subscribe(collection => {
-        var hz = horizon(collection);
-        hz.watch().subscribe(message => {
-          app.ports.nextPort.send(message);  
-        });
-      });
       
+      elmHorizon(app, horizon);
     </script>   
   </body>
 </html>
