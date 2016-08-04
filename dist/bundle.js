@@ -8039,6 +8039,36 @@ var _user$project$Horizon$removeAllSub = function (tagger) {
 	return _user$project$Horizon$removeAllSubscription(
 		_user$project$Horizon$responseTagger(tagger));
 };
+var _user$project$Horizon$removePort = _elm_lang$core$Native_Platform.outgoingPort(
+	'removePort',
+	function (v) {
+		return [v._0, v._1];
+	});
+var _user$project$Horizon$removeCmd = F2(
+	function (collectionName, id) {
+		return A3(_elm_lang$core$Basics$curry, _user$project$Horizon$removePort, collectionName, id);
+	});
+var _user$project$Horizon$removeSubscription = _elm_lang$core$Native_Platform.incomingPort(
+	'removeSubscription',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'error',
+			_elm_lang$core$Json_Decode$oneOf(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+					]))),
+		function (error) {
+			return _elm_lang$core$Json_Decode$succeed(
+				{error: error});
+		}));
+var _user$project$Horizon$removeSub = function (tagger) {
+	return _user$project$Horizon$removeSubscription(
+		_user$project$Horizon$responseTagger(tagger));
+};
 var _user$project$Horizon$IdResponse = F2(
 	function (a, b) {
 		return {id: a, error: b};
@@ -8077,25 +8107,6 @@ var _user$project$Chat$viewError = function (maybeError) {
 						]));
 			},
 			maybeError));
-};
-var _user$project$Chat$viewMessage = function (msg) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$b,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text(
-						A2(_elm_lang$core$Basics_ops['++'], msg.name, ': '))
-					])),
-				_elm_lang$html$Html$text(msg.value)
-			]));
 };
 var _user$project$Chat$onEnter = function (message) {
 	var filterKey = function (keyCode) {
@@ -8255,7 +8266,7 @@ var _user$project$Chat$update = F2(
 						_user$project$Chat$collectionName,
 						A2(_elm_lang$core$List$map, _user$project$Chat$messageIdEncoder, model.messages))
 				};
-			default:
+			case 'DeleteAllResponse':
 				var _p6 = A2(_elm_lang$core$Debug$log, 'DeleteAllResponse', _p1._0);
 				if (_p6.ctor === 'Err') {
 					return {
@@ -8264,6 +8275,30 @@ var _user$project$Chat$update = F2(
 							model,
 							{
 								error: _elm_lang$core$Maybe$Just(_p6._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'DeleteMessage':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(
+						_user$project$Horizon$removeCmd,
+						_user$project$Chat$collectionName,
+						_elm_lang$core$Json_Encode$string(_p1._0))
+				};
+			default:
+				var _p7 = _p1._0;
+				if (_p7.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _elm_lang$core$Maybe$Just(_p7._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -8285,6 +8320,83 @@ var _user$project$Chat$init = {
 	},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
+var _user$project$Chat$DeleteMessageResponse = function (a) {
+	return {ctor: 'DeleteMessageResponse', _0: a};
+};
+var _user$project$Chat$DeleteMessage = function (a) {
+	return {ctor: 'DeleteMessage', _0: a};
+};
+var _user$project$Chat$viewMessage = F2(
+	function (model, msg) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'margin', _1: '5px 0'}
+						]))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$b,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(
+							A2(_elm_lang$core$Basics_ops['++'], msg.name, ': '))
+						])),
+					_elm_lang$html$Html$text(msg.value),
+					_elm_lang$core$Native_Utils.eq(model.name, msg.name) ? A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'float', _1: 'right'}
+								]))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$button,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$style(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{ctor: '_Tuple2', _0: 'padding', _1: '0 4px'}
+										])),
+									_elm_lang$html$Html_Attributes$title('Edit')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('e')
+								])),
+							A2(
+							_elm_lang$html$Html$button,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$style(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{ctor: '_Tuple2', _0: 'padding', _1: '0 4px'}
+										])),
+									_elm_lang$html$Html_Attributes$title('Delete'),
+									_elm_lang$html$Html_Events$onClick(
+									_user$project$Chat$DeleteMessage(msg.id))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('x')
+								]))
+						])) : _elm_lang$html$Html$text('')
+				]));
+	});
 var _user$project$Chat$DeleteAllResponse = function (a) {
 	return {ctor: 'DeleteAllResponse', _0: a};
 };
@@ -8313,8 +8425,8 @@ var _user$project$Chat$Input = function (a) {
 	return {ctor: 'Input', _0: a};
 };
 var _user$project$Chat$view = function (model) {
-	var _p7 = model.state;
-	if (_p7.ctor === 'EnterName') {
+	var _p8 = model.state;
+	if (_p8.ctor === 'EnterName') {
 		return A2(
 			_elm_lang$html$Html$p,
 			_elm_lang$core$Native_List.fromArray(
@@ -8401,7 +8513,7 @@ var _user$project$Chat$view = function (model) {
 						[]),
 					A2(
 						_elm_lang$core$List$map,
-						_user$project$Chat$viewMessage,
+						_user$project$Chat$viewMessage(model),
 						_elm_lang$core$List$reverse(model.messages))),
 					A2(
 					_elm_lang$html$Html$p,

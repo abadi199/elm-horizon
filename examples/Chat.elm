@@ -53,7 +53,7 @@ type ChatState
 
 
 type alias Message =
-    { id : String
+    { id : Id
     , name : String
     , value : String
     }
@@ -105,6 +105,8 @@ type Msg
     | EnterChat
     | DeleteAll
     | DeleteAllResponse (Result Error ())
+    | DeleteMessage Id
+    | DeleteMessageResponse (Result Error ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -169,6 +171,19 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        DeleteMessage id ->
+            ( model
+            , Horizon.removeCmd collectionName (Encode.string id)
+            )
+
+        DeleteMessageResponse result ->
+            case result of
+                Err error ->
+                    ( { model | error = Just error }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 findMyMessages : Model -> List Message
 findMyMessages model =
@@ -225,7 +240,7 @@ view model =
                       )
                     , button [ onClick Send ] [ text "Send" ]
                     ]
-                , div [] (List.map viewMessage (List.reverse model.messages))
+                , div [] (model.messages |> List.reverse |> List.map (viewMessage model))
                 , p [] [ button [ onClick DeleteAll ] [ text "Delete All" ] ]
                 ]
 
@@ -249,9 +264,20 @@ onEnter message =
         on "keyup" decoder
 
 
-viewMessage : Message -> Html msg
-viewMessage msg =
-    div [] [ b [] [ text <| msg.name ++ ": " ], text msg.value ]
+viewMessage : Model -> Message -> Html Msg
+viewMessage model msg =
+    div [ style [ ( "margin", "5px 0" ) ] ]
+        [ b [] [ text <| msg.name ++ ": " ]
+        , text msg.value
+        , if model.name == msg.name then
+            (div [ style [ ( "float", "right" ) ] ]
+                [ button [ style [ ( "padding", "0 4px" ) ], title "Edit" ] [ text "e" ]
+                , button [ style [ ( "padding", "0 4px" ) ], title "Delete", onClick (DeleteMessage msg.id) ] [ text "x" ]
+                ]
+            )
+          else
+            text ""
+        ]
 
 
 viewError : Maybe Error -> Html msg

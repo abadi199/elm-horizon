@@ -8,8 +8,8 @@ port module Horizon
         , fetchSub
         , removeAllCmd
         , removeAllSub
-        , IdResponse
-        , ListResponse
+        , removeCmd
+        , removeSub
         )
 
 import Json.Decode as Json exposing (Decoder)
@@ -74,6 +74,12 @@ port removeAllPort : ( CollectionName, List Json.Value ) -> Cmd msg
 
 
 port removeAllSubscription : (Response -> msg) -> Sub msg
+
+
+port removePort : ( CollectionName, Json.Value ) -> Cmd msg
+
+
+port removeSubscription : (Response -> msg) -> Sub msg
 
 
 
@@ -157,6 +163,16 @@ removeAllCmd collectionName ids =
 removeAllSub : (Result Error () -> msg) -> Sub msg
 removeAllSub tagger =
     responseTagger tagger |> removeAllSubscription
+
+
+removeCmd : CollectionName -> Json.Value -> Cmd msg
+removeCmd collectionName id =
+    curry removePort collectionName id
+
+
+removeSub : (Result Error () -> msg) -> Sub msg
+removeSub tagger =
+    responseTagger tagger |> removeSubscription
 
 
 
