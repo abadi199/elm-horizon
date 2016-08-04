@@ -8808,44 +8808,121 @@ var _user$project$Chat$main = {
 		{init: _user$project$Chat$init, view: _user$project$Chat$view, update: _user$project$Chat$update, subscriptions: _user$project$Chat$subscriptions})
 };
 
-var _user$project$Fetch$test = '';
+var _user$project$Search$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[]));
+};
+var _user$project$Search$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$label,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Search: '),
+						A2(
+						_elm_lang$html$Html$input,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$style(
+								_elm_lang$core$Native_List.fromArray(
+									[
+										{ctor: '_Tuple2', _0: 'width', _1: '100%'}
+									]))
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[])),
+						A2(
+						_elm_lang$html$Html$button,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Search!')
+							]))
+					]))
+			]));
+};
+var _user$project$Search$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+	});
+var _user$project$Search$init = {
+	ctor: '_Tuple2',
+	_0: {},
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _user$project$Search$main = {
+	main: _elm_lang$html$Html_App$program(
+		{init: _user$project$Search$init, view: _user$project$Search$view, update: _user$project$Search$update, subscriptions: _user$project$Search$subscriptions})
+};
+var _user$project$Search$Model = {};
+var _user$project$Search$NoOp = {ctor: 'NoOp'};
 
-var _user$project$Main$Model = function (a) {
-	return {chat: a};
+var _user$project$Main$Model = F2(
+	function (a, b) {
+		return {chat: a, search: b};
+	});
+var _user$project$Main$SearchMsg = function (a) {
+	return {ctor: 'SearchMsg', _0: a};
 };
 var _user$project$Main$ChatMsg = function (a) {
 	return {ctor: 'ChatMsg', _0: a};
 };
 var _user$project$Main$init = function () {
-	var _p0 = _user$project$Chat$init;
-	var chatModel = _p0._0;
-	var chatCmd = _p0._1;
+	var _p0 = _user$project$Search$init;
+	var searchModel = _p0._0;
+	var searchCmd = _p0._1;
+	var _p1 = _user$project$Chat$init;
+	var chatModel = _p1._0;
+	var chatCmd = _p1._1;
 	return {
 		ctor: '_Tuple2',
-		_0: {chat: chatModel},
+		_0: {chat: chatModel, search: searchModel},
 		_1: _elm_lang$core$Platform_Cmd$batch(
 			_elm_lang$core$Native_List.fromArray(
 				[
-					A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$ChatMsg, chatCmd)
+					A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$ChatMsg, chatCmd),
+					A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$SearchMsg, searchCmd)
 				]))
 	};
 }();
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		if (_p1.ctor === 'NoOp') {
-			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-		} else {
-			var _p2 = A2(_user$project$Chat$update, _p1._0, model.chat);
-			var chatModel = _p2._0;
-			var chatCmd = _p2._1;
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{chat: chatModel}),
-				_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$ChatMsg, chatCmd)
-			};
+		var _p2 = msg;
+		switch (_p2.ctor) {
+			case 'NoOp':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'ChatMsg':
+				var _p3 = A2(_user$project$Chat$update, _p2._0, model.chat);
+				var chatModel = _p3._0;
+				var chatCmd = _p3._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{chat: chatModel}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$ChatMsg, chatCmd)
+				};
+			default:
+				var _p4 = A2(_user$project$Search$update, _p2._0, model.search);
+				var searchModel = _p4._0;
+				var searchCmd = _p4._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{search: searchModel}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$SearchMsg, searchCmd)
+				};
 		}
 	});
 var _user$project$Main$view = function (model) {
@@ -8881,6 +8958,25 @@ var _user$project$Main$view = function (model) {
 						_elm_lang$html$Html_App$map,
 						_user$project$Main$ChatMsg,
 						_user$project$Chat$view(model.chat))
+					])),
+				A2(
+				_elm_lang$html$Html$section,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$h3,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Search App')
+							])),
+						A2(
+						_elm_lang$html$Html_App$map,
+						_user$project$Main$SearchMsg,
+						_user$project$Search$view(model.search))
 					]))
 			]));
 };
@@ -8903,10 +8999,10 @@ var _user$project$Main$NoOp = {ctor: 'NoOp'};
 var Elm = {};
 Elm['Chat'] = Elm['Chat'] || {};
 _elm_lang$core$Native_Platform.addPublicModule(Elm['Chat'], 'Chat', typeof _user$project$Chat$main === 'undefined' ? null : _user$project$Chat$main);
-Elm['Fetch'] = Elm['Fetch'] || {};
-_elm_lang$core$Native_Platform.addPublicModule(Elm['Fetch'], 'Fetch', typeof _user$project$Fetch$main === 'undefined' ? null : _user$project$Fetch$main);
 Elm['Main'] = Elm['Main'] || {};
 _elm_lang$core$Native_Platform.addPublicModule(Elm['Main'], 'Main', typeof _user$project$Main$main === 'undefined' ? null : _user$project$Main$main);
+Elm['Search'] = Elm['Search'] || {};
+_elm_lang$core$Native_Platform.addPublicModule(Elm['Search'], 'Search', typeof _user$project$Search$main === 'undefined' ? null : _user$project$Search$main);
 
 if (typeof define === "function" && define['amd'])
 {

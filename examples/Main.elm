@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Chat
+import Search
 import Html exposing (..)
 import Html.App
 import Html.Attributes exposing (..)
@@ -21,7 +22,9 @@ main =
 
 
 type alias Model =
-    { chat : Chat.Model }
+    { chat : Chat.Model
+    , search : Search.Model
+    }
 
 
 init : ( Model, Cmd Msg )
@@ -29,8 +32,18 @@ init =
     let
         ( chatModel, chatCmd ) =
             Chat.init
+
+        ( searchModel, searchCmd ) =
+            Search.init
     in
-        ( { chat = chatModel }, Cmd.batch [ chatCmd |> Cmd.map ChatMsg ] )
+        ( { chat = chatModel
+          , search = searchModel
+          }
+        , Cmd.batch
+            [ chatCmd |> Cmd.map ChatMsg
+            , searchCmd |> Cmd.map SearchMsg
+            ]
+        )
 
 
 
@@ -40,6 +53,7 @@ init =
 type Msg
     = NoOp
     | ChatMsg Chat.Msg
+    | SearchMsg Search.Msg
 
 
 
@@ -59,6 +73,13 @@ update msg model =
             in
                 ( { model | chat = chatModel }, Cmd.map ChatMsg chatCmd )
 
+        SearchMsg searchMsg ->
+            let
+                ( searchModel, searchCmd ) =
+                    Search.update searchMsg model.search
+            in
+                ( { model | search = searchModel }, Cmd.map SearchMsg searchCmd )
+
 
 
 -- VIEW
@@ -71,6 +92,10 @@ view model =
         , section []
             [ h3 [] [ text "Chat App" ]
             , Chat.view model.chat |> Html.App.map ChatMsg
+            ]
+        , section []
+            [ h3 [] [ text "Search App" ]
+            , Search.view model.search |> Html.App.map SearchMsg
             ]
         ]
 
