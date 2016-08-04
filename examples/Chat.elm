@@ -56,7 +56,13 @@ type alias Message =
     { id : Id
     , name : String
     , value : String
+    , mode : MessageMode
     }
+
+
+type MessageMode
+    = ViewMode
+    | EditMode
 
 
 messageDecoder : Json.Decoder Message
@@ -65,6 +71,7 @@ messageDecoder =
         |> Decode.required "id" Json.string
         |> Decode.required "name" Json.string
         |> Decode.required "value" Json.string
+        |> Decode.hardcoded ViewMode
 
 
 messageEncoder : Message -> Json.Value
@@ -85,7 +92,7 @@ init =
     ( { state = EnterName
       , error = Nothing
       , name = ""
-      , input = { id = "", name = "", value = "" }
+      , input = { id = "", name = "", value = "", mode = ViewMode }
       , messages = []
       }
     , Cmd.none
@@ -107,13 +114,14 @@ type Msg
     | DeleteAllResponse (Result Error ())
     | DeleteMessage Id
     | DeleteMessageResponse (Result Error ())
+    | Edit Id
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Input newInput ->
-            ( { model | input = { id = "", name = model.name, value = newInput } }, Cmd.none )
+            ( { model | input = { id = "", name = model.name, value = newInput, mode = ViewMode } }, Cmd.none )
 
         Send ->
             ( model
@@ -121,20 +129,16 @@ update msg model =
             )
 
         SendResponse result ->
-            let
-                _ =
-                    Debug.log "SendResponse" result
-            in
-                case result of
-                    Err error ->
-                        ( { model | error = Just error }
-                        , Cmd.none
-                        )
+            case result of
+                Err error ->
+                    ( { model | error = Just error }
+                    , Cmd.none
+                    )
 
-                    _ ->
-                        ( { model | input = { id = "", name = model.name, value = "" } }
-                        , Cmd.none
-                        )
+                _ ->
+                    ( { model | input = { id = "", name = model.name, value = "", mode = ViewMode } }
+                    , Cmd.none
+                    )
 
         NewMessage result ->
             case result of
@@ -164,7 +168,7 @@ update msg model =
             )
 
         DeleteAllResponse result ->
-            case Debug.log "DeleteAllResponse" result of
+            case result of
                 Err error ->
                     ( { model | error = Just error }, Cmd.none )
 
@@ -184,11 +188,38 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Edit id ->
+            ( updateMessageMode id EditMode model, Cmd.none )
 
-findMyMessages : Model -> List Message
-findMyMessages model =
-    model.messages
-        |> List.filter (\message -> message.name == model.name)
+
+updateMessageMode : Id -> MessageMode -> Model -> Model
+updateMessageMode id mode model =
+    let
+        _ =
+            Debug.log "updateMessageMode" id
+
+        maybeUpdate =
+            model.messages
+                |> List.filter (\message -> message.id == id)
+                |> List.head
+                |> Maybe.map (\message -> { message | mode = mode })
+    in
+        case maybeUpdate of
+            Nothing ->
+                model
+
+            Just updatedMessage ->
+                { model
+                    | messages =
+                        model.messages
+                            |> List.map
+                                (\message ->
+                                    if message.id == id then
+                                        updatedMessage
+                                    else
+                                        message
+                                )
+                }
 
 
 
@@ -266,18 +297,30 @@ onEnter message =
 
 viewMessage : Model -> Message -> Html Msg
 viewMessage model msg =
-    div [ style [ ( "margin", "5px 0" ) ] ]
-        [ b [] [ text <| msg.name ++ ": " ]
-        , text msg.value
-        , if model.name == msg.name then
-            (div [ style [ ( "float", "right" ) ] ]
-                [ button [ style [ ( "padding", "0 4px" ) ], title "Edit" ] [ text "e" ]
-                , button [ style [ ( "padding", "0 4px" ) ], title "Delete", onClick (DeleteMessage msg.id) ] [ text "x" ]
+    case msg.mode of
+        ViewMode ->
+            div [ style [ ( "margin", "5px 0" ) ] ]
+                [ b [] [ text <| msg.name ++ ": " ]
+                , text msg.value
+                , if model.name == msg.name then
+                    (div [ style [ ( "float", "right" ) ] ]
+                        [ button [ style [ ( "padding", "0 4px" ) ], onClick (Edit msg.id) ] [ text "Edit" ]
+                        , button [ style [ ( "padding", "0 4px" ) ], onClick (DeleteMessage msg.id) ] [ text "Delete" ]
+                        ]
+                    )
+                  else
+                    text ""
                 ]
-            )
-          else
-            text ""
-        ]
+
+        EditMode ->
+            div [ style [ ( "margin", "5px 0" ) ] ]
+                [ b [] [ text <| msg.name ++ ": " ]
+                , input [ value msg.value ] []
+                , div [ style [ ( "float", "right" ) ] ]
+                    [ button [ style [ ( "padding", "0 4px" ) ] ] [ text "Cancel" ]
+                    , button [ style [ ( "padding", "0 4px" ) ] ] [ text "Submit" ]
+                    ]
+                ]
 
 
 viewError : Maybe Error -> Html msg

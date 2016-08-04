@@ -82,6 +82,12 @@ port removePort : ( CollectionName, Json.Value ) -> Cmd msg
 port removeSubscription : (Response -> msg) -> Sub msg
 
 
+port updatePort : ( CollectionName, List Json.Value ) -> Cmd msg
+
+
+port updateSubscription : (Response -> msg) -> Sub msg
+
+
 
 -- HELPERS
 
@@ -173,6 +179,11 @@ removeCmd collectionName id =
 removeSub : (Result Error () -> msg) -> Sub msg
 removeSub tagger =
     responseTagger tagger |> removeSubscription
+
+
+updateCmd : CollectionName -> List Json.Value -> Cmd msg
+updateCmd collectionName values =
+    curry updatePort collectionName values
 
 
 

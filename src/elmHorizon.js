@@ -46,6 +46,15 @@
                 elmApp.ports.removeSubscription.send({ error: error });                
             });
         });
+
+        elmApp.ports.updatePort.subscribe(function updatePortCb(data) {
+            var hz = horizon(data[0]);
+            hz.update(data[1]).subscribe(function completed(message) {
+                elmApp.ports.updateSubscription.send({ error: null });                
+            }, function error(error) {
+                elmApp.ports.updateSubscription.send({ error: error });                
+            });
+        });
     }
 
     window.elmHorizon = elmHorizon;
