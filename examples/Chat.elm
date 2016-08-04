@@ -56,8 +56,14 @@ type alias Message =
     { id : Id
     , name : String
     , value : String
+    , draft : String
     , mode : MessageMode
     }
+
+
+emptyMessage : Message
+emptyMessage =
+    { id = "", name = "", value = "", draft = "", mode = ViewMode }
 
 
 type MessageMode
@@ -71,13 +77,23 @@ messageDecoder =
         |> Decode.required "id" Json.string
         |> Decode.required "name" Json.string
         |> Decode.required "value" Json.string
+        |> Decode.hardcoded ""
         |> Decode.hardcoded ViewMode
+
+
+newMessageEncoder : Message -> Json.Value
+newMessageEncoder message =
+    Encode.object
+        [ ( "name", Encode.string message.name )
+        , ( "value", Encode.string message.value )
+        ]
 
 
 messageEncoder : Message -> Json.Value
 messageEncoder message =
     Encode.object
-        [ ( "name", Encode.string message.name )
+        [ ( "id", Encode.string message.id )
+        , ( "name", Encode.string message.name )
         , ( "value", Encode.string message.value )
         ]
 
@@ -92,7 +108,7 @@ init =
     ( { state = EnterName
       , error = Nothing
       , name = ""
-      , input = { id = "", name = "", value = "", mode = ViewMode }
+      , input = emptyMessage
       , messages = []
       }
     , Cmd.none
@@ -115,17 +131,21 @@ type Msg
     | DeleteMessage Id
     | DeleteMessageResponse (Result Error ())
     | Edit Id
+    | UpdateDraft Id String
+    | CancelEdit Id
+    | Update Id
+    | UpdateResponse (Result Error ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Input newInput ->
-            ( { model | input = { id = "", name = model.name, value = newInput, mode = ViewMode } }, Cmd.none )
+            ( { model | input = { emptyMessage | name = model.name, value = newInput } }, Cmd.none )
 
         Send ->
             ( model
-            , Horizon.storeCmd collectionName (messageEncoder model.input)
+            , Horizon.storeCmd collectionName (newMessageEncoder model.input)
             )
 
         SendResponse result ->
@@ -136,7 +156,7 @@ update msg model =
                     )
 
                 _ ->
-                    ( { model | input = { id = "", name = model.name, value = "", mode = ViewMode } }
+                    ( { model | input = { emptyMessage | name = model.name } }
                     , Cmd.none
                     )
 
@@ -189,20 +209,77 @@ update msg model =
                     ( model, Cmd.none )
 
         Edit id ->
-            ( updateMessageMode id EditMode model, Cmd.none )
+            ( updateMessageMode EditMode id model, Cmd.none )
+
+        UpdateDraft id draft ->
+            ( updateMessageDraft draft id model, Cmd.none )
+
+        CancelEdit id ->
+            ( updateMessageMode ViewMode id model, Cmd.none )
+
+        Update id ->
+            let
+                updater message =
+                    { message | value = message.draft, draft = "", mode = ViewMode }
+
+                maybeMessage =
+                    findMessage id model
+                        |> Maybe.map updater
+            in
+                ( updateMessageMode ViewMode id model
+                , maybeMessage
+                    |> Debug.log "update"
+                    |> Maybe.map (messageEncoder >> Horizon.updateCmd collectionName)
+                    |> Maybe.withDefault Cmd.none
+                )
+
+        UpdateResponse result ->
+            case result of
+                Err error ->
+                    ( { model | error = Just error }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
-updateMessageMode : Id -> MessageMode -> Model -> Model
-updateMessageMode id mode model =
+findMessage : Id -> Model -> Maybe Message
+findMessage id model =
+    model.messages
+        |> List.filter (\message -> message.id == id)
+        |> List.head
+
+
+updateMessageDraft : String -> Id -> Model -> Model
+updateMessageDraft draft =
+    updateMessage (\message -> { message | draft = draft })
+
+
+updateMessageMode : MessageMode -> Id -> Model -> Model
+updateMessageMode mode =
     let
-        _ =
-            Debug.log "updateMessageMode" id
+        updateDraft message =
+            case mode of
+                ViewMode ->
+                    { message | draft = "" }
 
+                EditMode ->
+                    { message | draft = message.value }
+    in
+        updateMessage
+            (\message ->
+                { message | mode = mode }
+                    |> updateDraft
+            )
+
+
+updateMessage : (Message -> Message) -> Id -> Model -> Model
+updateMessage updater id model =
+    let
         maybeUpdate =
             model.messages
                 |> List.filter (\message -> message.id == id)
                 |> List.head
-                |> Maybe.map (\message -> { message | mode = mode })
+                |> Maybe.map updater
     in
         case maybeUpdate of
             Nothing ->
@@ -232,6 +309,7 @@ subscriptions model =
         [ Horizon.watchSub messageDecoder NewMessage
         , Horizon.storeSub SendResponse
         , Horizon.removeAllSub DeleteAllResponse
+        , Horizon.updateSub UpdateResponse
         ]
 
 
@@ -261,18 +339,19 @@ view model =
             div []
                 [ viewError model.error
                 , p [] [ text <| "Logged in as: " ++ model.name ]
+                , div [] (model.messages |> List.map (viewMessage model))
                 , p []
-                    [ (input
+                    [ (textarea
                         [ onInput Input
                         , value model.input.value
                         , onEnter Send
+                        , style [ ( "width", "100%" ), ( "height", "50px" ) ]
                         ]
                         []
                       )
+                    , button [ onClick DeleteAll ] [ text "Delete All" ]
                     , button [ onClick Send ] [ text "Send" ]
                     ]
-                , div [] (model.messages |> List.reverse |> List.map (viewMessage model))
-                , p [] [ button [ onClick DeleteAll ] [ text "Delete All" ] ]
                 ]
 
 
@@ -314,11 +393,23 @@ viewMessage model msg =
 
         EditMode ->
             div [ style [ ( "margin", "5px 0" ) ] ]
-                [ b [] [ text <| msg.name ++ ": " ]
-                , input [ value msg.value ] []
-                , div [ style [ ( "float", "right" ) ] ]
-                    [ button [ style [ ( "padding", "0 4px" ) ] ] [ text "Cancel" ]
-                    , button [ style [ ( "padding", "0 4px" ) ] ] [ text "Submit" ]
+                [ textarea
+                    [ value msg.draft
+                    , style [ ( "width", "100%" ) ]
+                    , onInput (UpdateDraft msg.id)
+                    ]
+                    []
+                , div []
+                    [ button
+                        [ style [ ( "padding", "0 4px" ) ]
+                        , onClick (CancelEdit msg.id)
+                        ]
+                        [ text "Cancel" ]
+                    , button
+                        [ style [ ( "padding", "0 4px" ) ]
+                        , onClick (Update msg.id)
+                        ]
+                        [ text "Submit" ]
                     ]
                 ]
 

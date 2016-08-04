@@ -10,6 +10,8 @@ port module Horizon
         , removeAllSub
         , removeCmd
         , removeSub
+        , updateCmd
+        , updateSub
         )
 
 import Json.Decode as Json exposing (Decoder)
@@ -82,7 +84,7 @@ port removePort : ( CollectionName, Json.Value ) -> Cmd msg
 port removeSubscription : (Response -> msg) -> Sub msg
 
 
-port updatePort : ( CollectionName, List Json.Value ) -> Cmd msg
+port updatePort : ( CollectionName, Json.Value ) -> Cmd msg
 
 
 port updateSubscription : (Response -> msg) -> Sub msg
@@ -181,9 +183,14 @@ removeSub tagger =
     responseTagger tagger |> removeSubscription
 
 
-updateCmd : CollectionName -> List Json.Value -> Cmd msg
-updateCmd collectionName values =
-    curry updatePort collectionName values
+updateCmd : CollectionName -> Json.Value -> Cmd msg
+updateCmd collectionName value =
+    curry updatePort collectionName value
+
+
+updateSub : (Result Error () -> msg) -> Sub msg
+updateSub tagger =
+    responseTagger tagger |> updateSubscription
 
 
 
@@ -196,5 +203,4 @@ updateCmd collectionName values =
 -- Collection.remove
 -- Collection.insert
 -- Collection.replace
--- Collection.update
 -- Collection.upsert

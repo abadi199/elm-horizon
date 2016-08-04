@@ -8072,17 +8072,11 @@ var _user$project$Horizon$removeSub = function (tagger) {
 var _user$project$Horizon$updatePort = _elm_lang$core$Native_Platform.outgoingPort(
 	'updatePort',
 	function (v) {
-		return [
-			v._0,
-			_elm_lang$core$Native_List.toArray(v._1).map(
-			function (v) {
-				return v;
-			})
-		];
+		return [v._0, v._1];
 	});
 var _user$project$Horizon$updateCmd = F2(
-	function (collectionName, values) {
-		return A3(_elm_lang$core$Basics$curry, _user$project$Horizon$updatePort, collectionName, values);
+	function (collectionName, value) {
+		return A3(_elm_lang$core$Basics$curry, _user$project$Horizon$updatePort, collectionName, value);
 	});
 var _user$project$Horizon$updateSubscription = _elm_lang$core$Native_Platform.incomingPort(
 	'updateSubscription',
@@ -8101,6 +8095,10 @@ var _user$project$Horizon$updateSubscription = _elm_lang$core$Native_Platform.in
 			return _elm_lang$core$Json_Decode$succeed(
 				{error: error});
 		}));
+var _user$project$Horizon$updateSub = function (tagger) {
+	return _user$project$Horizon$updateSubscription(
+		_user$project$Horizon$responseTagger(tagger));
+};
 var _user$project$Horizon$IdResponse = F2(
 	function (a, b) {
 		return {id: a, error: b};
@@ -8152,15 +8150,11 @@ var _user$project$Chat$onEnter = function (message) {
 		A2(_elm_lang$core$Json_Decode$customDecoder, _elm_lang$html$Html_Events$keyCode, filterKey));
 	return A2(_elm_lang$html$Html_Events$on, 'keyup', decoder);
 };
-var _user$project$Chat$updateMessageMode = F3(
-	function (id, mode, model) {
+var _user$project$Chat$updateMessage = F3(
+	function (updater, id, model) {
 		var maybeUpdate = A2(
 			_elm_lang$core$Maybe$map,
-			function (message) {
-				return _elm_lang$core$Native_Utils.update(
-					message,
-					{mode: mode});
-			},
+			updater,
 			_elm_lang$core$List$head(
 				A2(
 					_elm_lang$core$List$filter,
@@ -8168,9 +8162,8 @@ var _user$project$Chat$updateMessageMode = F3(
 						return _elm_lang$core$Native_Utils.eq(message.id, id);
 					},
 					model.messages)));
-		var _p1 = A2(_elm_lang$core$Debug$log, 'updateMessageMode', id);
-		var _p2 = maybeUpdate;
-		if (_p2.ctor === 'Nothing') {
+		var _p1 = maybeUpdate;
+		if (_p1.ctor === 'Nothing') {
 			return model;
 		} else {
 			return _elm_lang$core$Native_Utils.update(
@@ -8179,16 +8172,76 @@ var _user$project$Chat$updateMessageMode = F3(
 					messages: A2(
 						_elm_lang$core$List$map,
 						function (message) {
-							return _elm_lang$core$Native_Utils.eq(message.id, id) ? _p2._0 : message;
+							return _elm_lang$core$Native_Utils.eq(message.id, id) ? _p1._0 : message;
 						},
 						model.messages)
 				});
 		}
 	});
+var _user$project$Chat$updateMessageMode = function (mode) {
+	var updateDraft = function (message) {
+		var _p2 = mode;
+		if (_p2.ctor === 'ViewMode') {
+			return _elm_lang$core$Native_Utils.update(
+				message,
+				{draft: ''});
+		} else {
+			return _elm_lang$core$Native_Utils.update(
+				message,
+				{draft: message.value});
+		}
+	};
+	return _user$project$Chat$updateMessage(
+		function (message) {
+			return updateDraft(
+				_elm_lang$core$Native_Utils.update(
+					message,
+					{mode: mode}));
+		});
+};
+var _user$project$Chat$updateMessageDraft = function (draft) {
+	return _user$project$Chat$updateMessage(
+		function (message) {
+			return _elm_lang$core$Native_Utils.update(
+				message,
+				{draft: draft});
+		});
+};
+var _user$project$Chat$findMessage = F2(
+	function (id, model) {
+		return _elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$List$filter,
+				function (message) {
+					return _elm_lang$core$Native_Utils.eq(message.id, id);
+				},
+				model.messages));
+	});
 var _user$project$Chat$messageIdEncoder = function (message) {
 	return _elm_lang$core$Json_Encode$string(message.id);
 };
 var _user$project$Chat$messageEncoder = function (message) {
+	return _elm_lang$core$Json_Encode$object(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				{
+				ctor: '_Tuple2',
+				_0: 'id',
+				_1: _elm_lang$core$Json_Encode$string(message.id)
+			},
+				{
+				ctor: '_Tuple2',
+				_0: 'name',
+				_1: _elm_lang$core$Json_Encode$string(message.name)
+			},
+				{
+				ctor: '_Tuple2',
+				_0: 'value',
+				_1: _elm_lang$core$Json_Encode$string(message.value)
+			}
+			]));
+};
+var _user$project$Chat$newMessageEncoder = function (message) {
 	return _elm_lang$core$Json_Encode$object(
 		_elm_lang$core$Native_List.fromArray(
 			[
@@ -8209,42 +8262,46 @@ var _user$project$Chat$Model = F5(
 	function (a, b, c, d, e) {
 		return {state: a, error: b, name: c, input: d, messages: e};
 	});
-var _user$project$Chat$Message = F4(
-	function (a, b, c, d) {
-		return {id: a, name: b, value: c, mode: d};
+var _user$project$Chat$Message = F5(
+	function (a, b, c, d, e) {
+		return {id: a, name: b, value: c, draft: d, mode: e};
 	});
 var _user$project$Chat$Chat = {ctor: 'Chat'};
 var _user$project$Chat$EnterName = {ctor: 'EnterName'};
 var _user$project$Chat$EditMode = {ctor: 'EditMode'};
 var _user$project$Chat$ViewMode = {ctor: 'ViewMode'};
-var _user$project$Chat$messageDecoder = A2(
-	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$hardcoded,
-	_user$project$Chat$ViewMode,
-	A3(
-		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-		'value',
-		_elm_lang$core$Json_Decode$string,
-		A3(
-			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-			'name',
-			_elm_lang$core$Json_Decode$string,
-			A3(
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
-				'id',
-				_elm_lang$core$Json_Decode$string,
-				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Chat$Message)))));
+var _user$project$Chat$emptyMessage = {id: '', name: '', value: '', draft: '', mode: _user$project$Chat$ViewMode};
 var _user$project$Chat$init = {
 	ctor: '_Tuple2',
 	_0: {
 		state: _user$project$Chat$EnterName,
 		error: _elm_lang$core$Maybe$Nothing,
 		name: '',
-		input: {id: '', name: '', value: '', mode: _user$project$Chat$ViewMode},
+		input: _user$project$Chat$emptyMessage,
 		messages: _elm_lang$core$Native_List.fromArray(
 			[])
 	},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
+var _user$project$Chat$messageDecoder = A2(
+	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$hardcoded,
+	_user$project$Chat$ViewMode,
+	A2(
+		_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$hardcoded,
+		'',
+		A3(
+			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+			'value',
+			_elm_lang$core$Json_Decode$string,
+			A3(
+				_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+				'name',
+				_elm_lang$core$Json_Decode$string,
+				A3(
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required,
+					'id',
+					_elm_lang$core$Json_Decode$string,
+					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Chat$Message))))));
 var _user$project$Chat$update = F2(
 	function (msg, model) {
 		var _p3 = msg;
@@ -8255,7 +8312,9 @@ var _user$project$Chat$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							input: {id: '', name: model.name, value: _p3._0, mode: _user$project$Chat$ViewMode}
+							input: _elm_lang$core$Native_Utils.update(
+								_user$project$Chat$emptyMessage,
+								{name: model.name, value: _p3._0})
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -8266,7 +8325,7 @@ var _user$project$Chat$update = F2(
 					_1: A2(
 						_user$project$Horizon$storeCmd,
 						_user$project$Chat$collectionName,
-						_user$project$Chat$messageEncoder(model.input))
+						_user$project$Chat$newMessageEncoder(model.input))
 				};
 			case 'SendResponse':
 				var _p4 = _p3._0;
@@ -8286,7 +8345,9 @@ var _user$project$Chat$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								input: {id: '', name: model.name, value: '', mode: _user$project$Chat$ViewMode}
+								input: _elm_lang$core$Native_Utils.update(
+									_user$project$Chat$emptyMessage,
+									{name: model.name})
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -8378,13 +8439,80 @@ var _user$project$Chat$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
-			default:
+			case 'Edit':
 				return {
 					ctor: '_Tuple2',
-					_0: A3(_user$project$Chat$updateMessageMode, _p3._0, _user$project$Chat$EditMode, model),
+					_0: A3(_user$project$Chat$updateMessageMode, _user$project$Chat$EditMode, _p3._0, model),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			case 'UpdateDraft':
+				return {
+					ctor: '_Tuple2',
+					_0: A3(_user$project$Chat$updateMessageDraft, _p3._1, _p3._0, model),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'CancelEdit':
+				return {
+					ctor: '_Tuple2',
+					_0: A3(_user$project$Chat$updateMessageMode, _user$project$Chat$ViewMode, _p3._0, model),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Update':
+				var _p9 = _p3._0;
+				var updater = function (message) {
+					return _elm_lang$core$Native_Utils.update(
+						message,
+						{value: message.draft, draft: '', mode: _user$project$Chat$ViewMode});
+				};
+				var maybeMessage = A2(
+					_elm_lang$core$Maybe$map,
+					updater,
+					A2(_user$project$Chat$findMessage, _p9, model));
+				return {
+					ctor: '_Tuple2',
+					_0: A3(_user$project$Chat$updateMessageMode, _user$project$Chat$ViewMode, _p9, model),
+					_1: A2(
+						_elm_lang$core$Maybe$withDefault,
+						_elm_lang$core$Platform_Cmd$none,
+						A2(
+							_elm_lang$core$Maybe$map,
+							function (_p8) {
+								return A2(
+									_user$project$Horizon$updateCmd,
+									_user$project$Chat$collectionName,
+									_user$project$Chat$messageEncoder(_p8));
+							},
+							A2(_elm_lang$core$Debug$log, 'update', maybeMessage)))
+				};
+			default:
+				var _p10 = _p3._0;
+				if (_p10.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _elm_lang$core$Maybe$Just(_p10._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
 		}
+	});
+var _user$project$Chat$UpdateResponse = function (a) {
+	return {ctor: 'UpdateResponse', _0: a};
+};
+var _user$project$Chat$Update = function (a) {
+	return {ctor: 'Update', _0: a};
+};
+var _user$project$Chat$CancelEdit = function (a) {
+	return {ctor: 'CancelEdit', _0: a};
+};
+var _user$project$Chat$UpdateDraft = F2(
+	function (a, b) {
+		return {ctor: 'UpdateDraft', _0: a, _1: b};
 	});
 var _user$project$Chat$Edit = function (a) {
 	return {ctor: 'Edit', _0: a};
@@ -8397,8 +8525,8 @@ var _user$project$Chat$DeleteMessage = function (a) {
 };
 var _user$project$Chat$viewMessage = F2(
 	function (model, msg) {
-		var _p8 = msg.mode;
-		if (_p8.ctor === 'ViewMode') {
+		var _p11 = msg.mode;
+		if (_p11.ctor === 'ViewMode') {
 			return A2(
 				_elm_lang$html$Html$div,
 				_elm_lang$core$Native_List.fromArray(
@@ -8481,32 +8609,24 @@ var _user$project$Chat$viewMessage = F2(
 				_elm_lang$core$Native_List.fromArray(
 					[
 						A2(
-						_elm_lang$html$Html$b,
-						_elm_lang$core$Native_List.fromArray(
-							[]),
+						_elm_lang$html$Html$textarea,
 						_elm_lang$core$Native_List.fromArray(
 							[
-								_elm_lang$html$Html$text(
-								A2(_elm_lang$core$Basics_ops['++'], msg.name, ': '))
-							])),
-						A2(
-						_elm_lang$html$Html$input,
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html_Attributes$value(msg.value)
+								_elm_lang$html$Html_Attributes$value(msg.draft),
+								_elm_lang$html$Html_Attributes$style(
+								_elm_lang$core$Native_List.fromArray(
+									[
+										{ctor: '_Tuple2', _0: 'width', _1: '100%'}
+									])),
+								_elm_lang$html$Html_Events$onInput(
+								_user$project$Chat$UpdateDraft(msg.id))
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[])),
 						A2(
 						_elm_lang$html$Html$div,
 						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html_Attributes$style(
-								_elm_lang$core$Native_List.fromArray(
-									[
-										{ctor: '_Tuple2', _0: 'float', _1: 'right'}
-									]))
-							]),
+							[]),
 						_elm_lang$core$Native_List.fromArray(
 							[
 								A2(
@@ -8517,7 +8637,9 @@ var _user$project$Chat$viewMessage = F2(
 										_elm_lang$core$Native_List.fromArray(
 											[
 												{ctor: '_Tuple2', _0: 'padding', _1: '0 4px'}
-											]))
+											])),
+										_elm_lang$html$Html_Events$onClick(
+										_user$project$Chat$CancelEdit(msg.id))
 									]),
 								_elm_lang$core$Native_List.fromArray(
 									[
@@ -8531,7 +8653,9 @@ var _user$project$Chat$viewMessage = F2(
 										_elm_lang$core$Native_List.fromArray(
 											[
 												{ctor: '_Tuple2', _0: 'padding', _1: '0 4px'}
-											]))
+											])),
+										_elm_lang$html$Html_Events$onClick(
+										_user$project$Chat$Update(msg.id))
 									]),
 								_elm_lang$core$Native_List.fromArray(
 									[
@@ -8561,7 +8685,8 @@ var _user$project$Chat$subscriptions = function (model) {
 			[
 				A2(_user$project$Horizon$watchSub, _user$project$Chat$messageDecoder, _user$project$Chat$NewMessage),
 				_user$project$Horizon$storeSub(_user$project$Chat$SendResponse),
-				_user$project$Horizon$removeAllSub(_user$project$Chat$DeleteAllResponse)
+				_user$project$Horizon$removeAllSub(_user$project$Chat$DeleteAllResponse),
+				_user$project$Horizon$updateSub(_user$project$Chat$UpdateResponse)
 			]));
 };
 var _user$project$Chat$Send = {ctor: 'Send'};
@@ -8569,8 +8694,8 @@ var _user$project$Chat$Input = function (a) {
 	return {ctor: 'Input', _0: a};
 };
 var _user$project$Chat$view = function (model) {
-	var _p9 = model.state;
-	if (_p9.ctor === 'EnterName') {
+	var _p12 = model.state;
+	if (_p12.ctor === 'EnterName') {
 		return A2(
 			_elm_lang$html$Html$p,
 			_elm_lang$core$Native_List.fromArray(
@@ -8625,46 +8750,35 @@ var _user$project$Chat$view = function (model) {
 							A2(_elm_lang$core$Basics_ops['++'], 'Logged in as: ', model.name))
 						])),
 					A2(
-					_elm_lang$html$Html$p,
-					_elm_lang$core$Native_List.fromArray(
-						[]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							A2(
-							_elm_lang$html$Html$input,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Events$onInput(_user$project$Chat$Input),
-									_elm_lang$html$Html_Attributes$value(model.input.value),
-									_user$project$Chat$onEnter(_user$project$Chat$Send)
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[])),
-							A2(
-							_elm_lang$html$Html$button,
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html_Events$onClick(_user$project$Chat$Send)
-								]),
-							_elm_lang$core$Native_List.fromArray(
-								[
-									_elm_lang$html$Html$text('Send')
-								]))
-						])),
-					A2(
 					_elm_lang$html$Html$div,
 					_elm_lang$core$Native_List.fromArray(
 						[]),
 					A2(
 						_elm_lang$core$List$map,
 						_user$project$Chat$viewMessage(model),
-						_elm_lang$core$List$reverse(model.messages))),
+						model.messages)),
 					A2(
 					_elm_lang$html$Html$p,
 					_elm_lang$core$Native_List.fromArray(
 						[]),
 					_elm_lang$core$Native_List.fromArray(
 						[
+							A2(
+							_elm_lang$html$Html$textarea,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Events$onInput(_user$project$Chat$Input),
+									_elm_lang$html$Html_Attributes$value(model.input.value),
+									_user$project$Chat$onEnter(_user$project$Chat$Send),
+									_elm_lang$html$Html_Attributes$style(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{ctor: '_Tuple2', _0: 'width', _1: '100%'},
+											{ctor: '_Tuple2', _0: 'height', _1: '50px'}
+										]))
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[])),
 							A2(
 							_elm_lang$html$Html$button,
 							_elm_lang$core$Native_List.fromArray(
@@ -8674,6 +8788,16 @@ var _user$project$Chat$view = function (model) {
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html$text('Delete All')
+								])),
+							A2(
+							_elm_lang$html$Html$button,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Events$onClick(_user$project$Chat$Send)
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('Send')
 								]))
 						]))
 				]));

@@ -4,9 +4,11 @@
     var elmHorizon = function elmHorizon(elmApp, horizon) {
         elmApp.ports.storePort.subscribe(function storePortCb(data) {
             var hz = horizon(data[0]);
+            debugger;
             hz.store(data[1]).subscribe(function writeFunction(value) {
                 elmApp.ports.storeSubscription.send({ id: value.id, error : null });
             }, function error(error) {
+                console.log(error);
                 elmApp.ports.storeSubscription.send({ id: null, error : error });
             });
         });
@@ -48,6 +50,7 @@
         });
 
         elmApp.ports.updatePort.subscribe(function updatePortCb(data) {
+            console.log(data[1]);
             var hz = horizon(data[0]);
             hz.update(data[1]).subscribe(function completed(message) {
                 elmApp.ports.updateSubscription.send({ error: null });                
