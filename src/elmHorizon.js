@@ -4,7 +4,13 @@
     var elmHorizon = function elmHorizon(elmApp, horizon) {
         elmApp.ports.storePort.subscribe(function storePortCb(data) {
             var hz = horizon(data[0]);
-            hz.store(data[1]);
+            hz.store(data[1]).subscribe(function writeFunction(value) {
+                console.log('store write', value);
+                elmApp.ports.storeSubscription.send({ id: value.id, error : null });
+            }, function errorFunction(error) {
+                console.log('store error', error);
+                elmApp.ports.storeSubscription.send({ id: null, error : error });
+            });
         });
 
         elmApp.ports.watchPort.subscribe(function watchPortCb(collectionName) {

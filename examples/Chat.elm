@@ -8,6 +8,7 @@ import Json.Decode as Json
 import Json.Encode as Encode
 import Horizon
 import Json.Decode.Pipeline as Decode
+import Task exposing (Task)
 
 
 main : Program Never
@@ -85,9 +86,18 @@ init =
 -- UPDATE
 
 
+type alias Error =
+    String
+
+
+type alias Id =
+    String
+
+
 type Msg
     = Input String
     | Send
+    | SendResponse (Task Error Id)
     | NewMessage (List (Maybe Message))
     | UpdateName String
     | EnterChat
@@ -127,6 +137,13 @@ update msg model =
                 |> Horizon.removeAllCmd collectionName
             )
 
+        SendResponse result ->
+            let
+                _ =
+                    Debug.log "SendResponse" result
+            in
+                ( model, Cmd.none )
+
 
 findMyMessages : Model -> List Message
 findMyMessages model =
@@ -140,7 +157,10 @@ findMyMessages model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Horizon.watchSub messageDecoder NewMessage
+    Sub.batch
+        [ Horizon.watchSub messageDecoder NewMessage
+        , Horizon.storeSub SendResponse
+        ]
 
 
 
