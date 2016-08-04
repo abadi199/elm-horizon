@@ -5754,239 +5754,6 @@ var _NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$required = F3(
 			decoder);
 	});
 
-var _elm_lang$core$Task$onError = _elm_lang$core$Native_Scheduler.onError;
-var _elm_lang$core$Task$andThen = _elm_lang$core$Native_Scheduler.andThen;
-var _elm_lang$core$Task$spawnCmd = F2(
-	function (router, _p0) {
-		var _p1 = _p0;
-		return _elm_lang$core$Native_Scheduler.spawn(
-			A2(
-				_elm_lang$core$Task$andThen,
-				_p1._0,
-				_elm_lang$core$Platform$sendToApp(router)));
-	});
-var _elm_lang$core$Task$fail = _elm_lang$core$Native_Scheduler.fail;
-var _elm_lang$core$Task$mapError = F2(
-	function (f, task) {
-		return A2(
-			_elm_lang$core$Task$onError,
-			task,
-			function (err) {
-				return _elm_lang$core$Task$fail(
-					f(err));
-			});
-	});
-var _elm_lang$core$Task$succeed = _elm_lang$core$Native_Scheduler.succeed;
-var _elm_lang$core$Task$map = F2(
-	function (func, taskA) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			taskA,
-			function (a) {
-				return _elm_lang$core$Task$succeed(
-					func(a));
-			});
-	});
-var _elm_lang$core$Task$map2 = F3(
-	function (func, taskA, taskB) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			taskA,
-			function (a) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					taskB,
-					function (b) {
-						return _elm_lang$core$Task$succeed(
-							A2(func, a, b));
-					});
-			});
-	});
-var _elm_lang$core$Task$map3 = F4(
-	function (func, taskA, taskB, taskC) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			taskA,
-			function (a) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					taskB,
-					function (b) {
-						return A2(
-							_elm_lang$core$Task$andThen,
-							taskC,
-							function (c) {
-								return _elm_lang$core$Task$succeed(
-									A3(func, a, b, c));
-							});
-					});
-			});
-	});
-var _elm_lang$core$Task$map4 = F5(
-	function (func, taskA, taskB, taskC, taskD) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			taskA,
-			function (a) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					taskB,
-					function (b) {
-						return A2(
-							_elm_lang$core$Task$andThen,
-							taskC,
-							function (c) {
-								return A2(
-									_elm_lang$core$Task$andThen,
-									taskD,
-									function (d) {
-										return _elm_lang$core$Task$succeed(
-											A4(func, a, b, c, d));
-									});
-							});
-					});
-			});
-	});
-var _elm_lang$core$Task$map5 = F6(
-	function (func, taskA, taskB, taskC, taskD, taskE) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			taskA,
-			function (a) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					taskB,
-					function (b) {
-						return A2(
-							_elm_lang$core$Task$andThen,
-							taskC,
-							function (c) {
-								return A2(
-									_elm_lang$core$Task$andThen,
-									taskD,
-									function (d) {
-										return A2(
-											_elm_lang$core$Task$andThen,
-											taskE,
-											function (e) {
-												return _elm_lang$core$Task$succeed(
-													A5(func, a, b, c, d, e));
-											});
-									});
-							});
-					});
-			});
-	});
-var _elm_lang$core$Task$andMap = F2(
-	function (taskFunc, taskValue) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			taskFunc,
-			function (func) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					taskValue,
-					function (value) {
-						return _elm_lang$core$Task$succeed(
-							func(value));
-					});
-			});
-	});
-var _elm_lang$core$Task$sequence = function (tasks) {
-	var _p2 = tasks;
-	if (_p2.ctor === '[]') {
-		return _elm_lang$core$Task$succeed(
-			_elm_lang$core$Native_List.fromArray(
-				[]));
-	} else {
-		return A3(
-			_elm_lang$core$Task$map2,
-			F2(
-				function (x, y) {
-					return A2(_elm_lang$core$List_ops['::'], x, y);
-				}),
-			_p2._0,
-			_elm_lang$core$Task$sequence(_p2._1));
-	}
-};
-var _elm_lang$core$Task$onEffects = F3(
-	function (router, commands, state) {
-		return A2(
-			_elm_lang$core$Task$map,
-			function (_p3) {
-				return {ctor: '_Tuple0'};
-			},
-			_elm_lang$core$Task$sequence(
-				A2(
-					_elm_lang$core$List$map,
-					_elm_lang$core$Task$spawnCmd(router),
-					commands)));
-	});
-var _elm_lang$core$Task$toMaybe = function (task) {
-	return A2(
-		_elm_lang$core$Task$onError,
-		A2(_elm_lang$core$Task$map, _elm_lang$core$Maybe$Just, task),
-		function (_p4) {
-			return _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
-		});
-};
-var _elm_lang$core$Task$fromMaybe = F2(
-	function ($default, maybe) {
-		var _p5 = maybe;
-		if (_p5.ctor === 'Just') {
-			return _elm_lang$core$Task$succeed(_p5._0);
-		} else {
-			return _elm_lang$core$Task$fail($default);
-		}
-	});
-var _elm_lang$core$Task$toResult = function (task) {
-	return A2(
-		_elm_lang$core$Task$onError,
-		A2(_elm_lang$core$Task$map, _elm_lang$core$Result$Ok, task),
-		function (msg) {
-			return _elm_lang$core$Task$succeed(
-				_elm_lang$core$Result$Err(msg));
-		});
-};
-var _elm_lang$core$Task$fromResult = function (result) {
-	var _p6 = result;
-	if (_p6.ctor === 'Ok') {
-		return _elm_lang$core$Task$succeed(_p6._0);
-	} else {
-		return _elm_lang$core$Task$fail(_p6._0);
-	}
-};
-var _elm_lang$core$Task$init = _elm_lang$core$Task$succeed(
-	{ctor: '_Tuple0'});
-var _elm_lang$core$Task$onSelfMsg = F3(
-	function (_p9, _p8, _p7) {
-		return _elm_lang$core$Task$succeed(
-			{ctor: '_Tuple0'});
-	});
-var _elm_lang$core$Task$command = _elm_lang$core$Native_Platform.leaf('Task');
-var _elm_lang$core$Task$T = function (a) {
-	return {ctor: 'T', _0: a};
-};
-var _elm_lang$core$Task$perform = F3(
-	function (onFail, onSuccess, task) {
-		return _elm_lang$core$Task$command(
-			_elm_lang$core$Task$T(
-				A2(
-					_elm_lang$core$Task$onError,
-					A2(_elm_lang$core$Task$map, onSuccess, task),
-					function (x) {
-						return _elm_lang$core$Task$succeed(
-							onFail(x));
-					})));
-	});
-var _elm_lang$core$Task$cmdMap = F2(
-	function (tagger, _p10) {
-		var _p11 = _p10;
-		return _elm_lang$core$Task$T(
-			A2(_elm_lang$core$Task$map, tagger, _p11._0));
-	});
-_elm_lang$core$Native_Platform.effectManagers['Task'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Task$init, onEffects: _elm_lang$core$Task$onEffects, onSelfMsg: _elm_lang$core$Task$onSelfMsg, tag: 'cmd', cmdMap: _elm_lang$core$Task$cmdMap};
-
 //import Native.Json //
 
 var _elm_lang$virtual_dom$Native_VirtualDom = function() {
@@ -8064,22 +7831,40 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$project$Horizon$decode = F3(
+var _user$project$Horizon$responseTagger = F2(
+	function (tagger, response) {
+		var result = function () {
+			var _p0 = response.error;
+			if (_p0.ctor === 'Nothing') {
+				return _elm_lang$core$Result$Ok(
+					{ctor: '_Tuple0'});
+			} else {
+				return _elm_lang$core$Result$Err(_p0._0);
+			}
+		}();
+		return tagger(result);
+	});
+var _user$project$Horizon$valueTagger = F3(
 	function (decoder, tagger, value) {
 		return tagger(
-			_elm_lang$core$Task$fromResult(
-				A2(_elm_lang$core$Json_Decode$decodeValue, decoder, value)));
+			A2(_elm_lang$core$Json_Decode$decodeValue, decoder, value));
 	});
-var _user$project$Horizon$decodeList = F3(
-	function (decoder, tagger, values) {
+var _user$project$Horizon$listTagger = F3(
+	function (decoder, tagger, response) {
 		return tagger(
 			A2(
-				_elm_lang$core$List$map,
-				function (_p0) {
-					return _elm_lang$core$Result$toMaybe(
-						A2(_elm_lang$core$Json_Decode$decodeValue, decoder, _p0));
-				},
-				values));
+				_elm_lang$core$Result$map,
+				_elm_lang$core$List$map(
+					function (_p1) {
+						return _elm_lang$core$Result$toMaybe(
+							A2(_elm_lang$core$Json_Decode$decodeValue, decoder, _p1));
+					}),
+				A2(
+					_elm_lang$core$Result$fromMaybe,
+					A2(_elm_lang$core$Maybe$withDefault, 'Unknown error', response.error),
+					function (_) {
+						return _.values;
+					}(response))));
 	});
 var _user$project$Horizon$storePort = _elm_lang$core$Native_Platform.outgoingPort(
 	'storePort',
@@ -8125,7 +7910,7 @@ var _user$project$Horizon$storeSub = function (tagger) {
 		function (response) {
 			return tagger(
 				A2(
-					_elm_lang$core$Task$fromMaybe,
+					_elm_lang$core$Result$fromMaybe,
 					A2(_elm_lang$core$Maybe$withDefault, 'Unknown error', response.error),
 					response.id));
 		});
@@ -8138,11 +7923,41 @@ var _user$project$Horizon$watchPort = _elm_lang$core$Native_Platform.outgoingPor
 var _user$project$Horizon$watchCmd = _user$project$Horizon$watchPort;
 var _user$project$Horizon$watchSubscription = _elm_lang$core$Native_Platform.incomingPort(
 	'watchSubscription',
-	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'values',
+			_elm_lang$core$Json_Decode$oneOf(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value))
+					]))),
+		function (values) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				A2(
+					_elm_lang$core$Json_Decode_ops[':='],
+					'error',
+					_elm_lang$core$Json_Decode$oneOf(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+							]))),
+				function (error) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{values: values, error: error});
+				});
+		}));
 var _user$project$Horizon$watchSub = F2(
 	function (decoder, tagger) {
 		return _user$project$Horizon$watchSubscription(
-			A2(_user$project$Horizon$decodeList, decoder, tagger));
+			A2(_user$project$Horizon$listTagger, decoder, tagger));
 	});
 var _user$project$Horizon$fetchPort = _elm_lang$core$Native_Platform.outgoingPort(
 	'fetchPort',
@@ -8152,11 +7967,41 @@ var _user$project$Horizon$fetchPort = _elm_lang$core$Native_Platform.outgoingPor
 var _user$project$Horizon$fetchCmd = _user$project$Horizon$fetchPort;
 var _user$project$Horizon$fetchSubscription = _elm_lang$core$Native_Platform.incomingPort(
 	'fetchSubscription',
-	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value));
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'values',
+			_elm_lang$core$Json_Decode$oneOf(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value))
+					]))),
+		function (values) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				A2(
+					_elm_lang$core$Json_Decode_ops[':='],
+					'error',
+					_elm_lang$core$Json_Decode$oneOf(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+							]))),
+				function (error) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{values: values, error: error});
+				});
+		}));
 var _user$project$Horizon$fetchSub = F2(
 	function (decoder, tagger) {
 		return _user$project$Horizon$fetchSubscription(
-			A2(_user$project$Horizon$decodeList, decoder, tagger));
+			A2(_user$project$Horizon$listTagger, decoder, tagger));
 	});
 var _user$project$Horizon$removeAllPort = _elm_lang$core$Native_Platform.outgoingPort(
 	'removeAllPort',
@@ -8173,20 +8018,66 @@ var _user$project$Horizon$removeAllCmd = F2(
 	function (collectionName, ids) {
 		return A3(_elm_lang$core$Basics$curry, _user$project$Horizon$removeAllPort, collectionName, ids);
 	});
-var _user$project$Horizon$removeAllSubscription = _elm_lang$core$Native_Platform.incomingPort('removeAllSubscription', _elm_lang$core$Json_Decode$value);
-var _user$project$Horizon$removeAllSub = F2(
-	function (decoder, tagger) {
-		return _user$project$Horizon$removeAllSubscription(
-			A2(_user$project$Horizon$decode, decoder, tagger));
-	});
-var _user$project$Horizon$StoreResponse = F2(
+var _user$project$Horizon$removeAllSubscription = _elm_lang$core$Native_Platform.incomingPort(
+	'removeAllSubscription',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'error',
+			_elm_lang$core$Json_Decode$oneOf(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+					]))),
+		function (error) {
+			return _elm_lang$core$Json_Decode$succeed(
+				{error: error});
+		}));
+var _user$project$Horizon$removeAllSub = function (tagger) {
+	return _user$project$Horizon$removeAllSubscription(
+		_user$project$Horizon$responseTagger(tagger));
+};
+var _user$project$Horizon$IdResponse = F2(
 	function (a, b) {
 		return {id: a, error: b};
 	});
+var _user$project$Horizon$ListResponse = F2(
+	function (a, b) {
+		return {values: a, error: b};
+	});
+var _user$project$Horizon$Response = function (a) {
+	return {error: a};
+};
 var _user$project$Horizon$Next = function (a) {
 	return {ctor: 'Next', _0: a};
 };
 
+var _user$project$Chat$viewError = function (maybeError) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		_elm_lang$html$Html$text(''),
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (error) {
+				return A2(
+					_elm_lang$html$Html$p,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'color', _1: 'red'}
+								]))
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(error)
+						]));
+			},
+			maybeError));
+};
 var _user$project$Chat$viewMessage = function (msg) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -8246,9 +8137,9 @@ var _user$project$Chat$messageEncoder = function (message) {
 			]));
 };
 var _user$project$Chat$collectionName = 'chat';
-var _user$project$Chat$Model = F4(
-	function (a, b, c, d) {
-		return {state: a, name: b, input: c, messages: d};
+var _user$project$Chat$Model = F5(
+	function (a, b, c, d, e) {
+		return {state: a, error: b, name: c, input: d, messages: e};
 	});
 var _user$project$Chat$Message = F3(
 	function (a, b, c) {
@@ -8285,26 +8176,60 @@ var _user$project$Chat$update = F2(
 			case 'Send':
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							input: {id: '', name: model.name, value: ''}
-						}),
+					_0: model,
 					_1: A2(
 						_user$project$Horizon$storeCmd,
 						_user$project$Chat$collectionName,
 						_user$project$Chat$messageEncoder(model.input))
 				};
+			case 'SendResponse':
+				var _p4 = _p1._0;
+				var _p2 = A2(_elm_lang$core$Debug$log, 'SendResponse', _p4);
+				var _p3 = _p4;
+				if (_p3.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _elm_lang$core$Maybe$Just(_p3._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								input: {id: '', name: model.name, value: ''}
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
 			case 'NewMessage':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							messages: A2(_elm_lang$core$List$filterMap, _elm_lang$core$Basics$identity, _p1._0)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+				var _p5 = _p1._0;
+				if (_p5.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _elm_lang$core$Maybe$Just(_p5._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								messages: A2(_elm_lang$core$List$filterMap, _elm_lang$core$Basics$identity, _p5._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
 			case 'UpdateName':
 				return {
 					ctor: '_Tuple2',
@@ -8319,28 +8244,32 @@ var _user$project$Chat$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{state: _user$project$Chat$Chat}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_1: _user$project$Horizon$watchCmd(_user$project$Chat$collectionName)
 				};
 			case 'DeleteAll':
 				return {
 					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							messages: _elm_lang$core$Native_List.fromArray(
-								[])
-						}),
+					_0: model,
 					_1: A2(
 						_user$project$Horizon$removeAllCmd,
 						_user$project$Chat$collectionName,
-						A2(
-							_elm_lang$core$List$map,
-							_user$project$Chat$messageIdEncoder,
-							_user$project$Chat$findMyMessages(model)))
+						A2(_elm_lang$core$List$map, _user$project$Chat$messageIdEncoder, model.messages))
 				};
 			default:
-				var _p2 = A2(_elm_lang$core$Debug$log, 'SendResponse', _p1._0);
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p6 = A2(_elm_lang$core$Debug$log, 'DeleteAllResponse', _p1._0);
+				if (_p6.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _elm_lang$core$Maybe$Just(_p6._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
 		}
 	});
 var _user$project$Chat$EnterName = {ctor: 'EnterName'};
@@ -8348,12 +8277,16 @@ var _user$project$Chat$init = {
 	ctor: '_Tuple2',
 	_0: {
 		state: _user$project$Chat$EnterName,
+		error: _elm_lang$core$Maybe$Nothing,
 		name: '',
 		input: {id: '', name: '', value: ''},
 		messages: _elm_lang$core$Native_List.fromArray(
 			[])
 	},
-	_1: _user$project$Horizon$watchCmd(_user$project$Chat$collectionName)
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _user$project$Chat$DeleteAllResponse = function (a) {
+	return {ctor: 'DeleteAllResponse', _0: a};
 };
 var _user$project$Chat$DeleteAll = {ctor: 'DeleteAll'};
 var _user$project$Chat$EnterChat = {ctor: 'EnterChat'};
@@ -8371,7 +8304,8 @@ var _user$project$Chat$subscriptions = function (model) {
 		_elm_lang$core$Native_List.fromArray(
 			[
 				A2(_user$project$Horizon$watchSub, _user$project$Chat$messageDecoder, _user$project$Chat$NewMessage),
-				_user$project$Horizon$storeSub(_user$project$Chat$SendResponse)
+				_user$project$Horizon$storeSub(_user$project$Chat$SendResponse),
+				_user$project$Horizon$removeAllSub(_user$project$Chat$DeleteAllResponse)
 			]));
 };
 var _user$project$Chat$Send = {ctor: 'Send'};
@@ -8379,8 +8313,8 @@ var _user$project$Chat$Input = function (a) {
 	return {ctor: 'Input', _0: a};
 };
 var _user$project$Chat$view = function (model) {
-	var _p3 = model.state;
-	if (_p3.ctor === 'EnterName') {
+	var _p7 = model.state;
+	if (_p7.ctor === 'EnterName') {
 		return A2(
 			_elm_lang$html$Html$p,
 			_elm_lang$core$Native_List.fromArray(
@@ -8424,6 +8358,7 @@ var _user$project$Chat$view = function (model) {
 				[]),
 			_elm_lang$core$Native_List.fromArray(
 				[
+					_user$project$Chat$viewError(model.error),
 					A2(
 					_elm_lang$html$Html$p,
 					_elm_lang$core$Native_List.fromArray(

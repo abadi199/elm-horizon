@@ -8,11 +8,12 @@ port module Horizon
         , fetchSub
         , removeAllCmd
         , removeAllSub
-        , StoreResponse
+        , IdResponse
+        , ListResponse
         )
 
 import Json.Decode as Json exposing (Decoder)
-import Task exposing (Task)
+import Result exposing (Result)
 
 
 type alias CollectionName =
@@ -27,8 +28,16 @@ type alias Error =
     String
 
 
-type alias StoreResponse =
+type alias IdResponse =
     { id : Maybe Id, error : Maybe String }
+
+
+type alias ListResponse =
+    { values : Maybe (List Json.Value), error : Maybe String }
+
+
+type alias Response =
+    { error : Maybe String }
 
 
 
@@ -46,41 +55,59 @@ type Msg
 port storePort : ( CollectionName, Json.Value ) -> Cmd msg
 
 
-port storeSubscription : (StoreResponse -> msg) -> Sub msg
+port storeSubscription : (IdResponse -> msg) -> Sub msg
 
 
 port watchPort : CollectionName -> Cmd msg
 
 
-port watchSubscription : (List Json.Value -> msg) -> Sub msg
+port watchSubscription : (ListResponse -> msg) -> Sub msg
 
 
 port fetchPort : CollectionName -> Cmd msg
 
 
-port fetchSubscription : (List Json.Value -> msg) -> Sub msg
+port fetchSubscription : (ListResponse -> msg) -> Sub msg
 
 
 port removeAllPort : ( CollectionName, List Json.Value ) -> Cmd msg
 
 
-port removeAllSubscription : (Json.Value -> msg) -> Sub msg
+port removeAllSubscription : (Response -> msg) -> Sub msg
 
 
 
 -- HELPERS
 
 
-decodeList : Decoder a -> (List (Maybe a) -> msg) -> List Json.Value -> msg
-decodeList decoder tagger values =
-    values
-        |> List.map (Json.decodeValue decoder >> Result.toMaybe)
+listTagger : Decoder a -> (Result Error (List (Maybe a)) -> msg) -> ListResponse -> msg
+listTagger decoder tagger response =
+    response
+        |> .values
+        |> Result.fromMaybe (Maybe.withDefault "Unknown error" response.error)
+        |> Result.map (List.map (Json.decodeValue decoder >> Result.toMaybe))
         |> tagger
 
 
-decode : Decoder a -> (Task String a -> msg) -> Json.Value -> msg
-decode decoder tagger value =
-    value |> Json.decodeValue decoder |> Task.fromResult |> tagger
+valueTagger : Decoder a -> (Result Error a -> msg) -> Json.Value -> msg
+valueTagger decoder tagger value =
+    value
+        |> Json.decodeValue decoder
+        |> tagger
+
+
+responseTagger : (Result Error () -> msg) -> Response -> msg
+responseTagger tagger response =
+    let
+        result =
+            case response.error of
+                Nothing ->
+                    Result.Ok ()
+
+                Just error ->
+                    Result.Err error
+    in
+        tagger result
 
 
 
@@ -92,12 +119,12 @@ storeCmd collectionName value =
     curry storePort collectionName value
 
 
-storeSub : (Task Error Id -> msg) -> Sub msg
+storeSub : (Result Error Id -> msg) -> Sub msg
 storeSub tagger =
     storeSubscription
         (\response ->
             response.id
-                |> Task.fromMaybe (Maybe.withDefault "Unknown error" response.error)
+                |> Result.fromMaybe (Maybe.withDefault "Unknown error" response.error)
                 |> tagger
         )
 
@@ -107,9 +134,9 @@ watchCmd =
     watchPort
 
 
-watchSub : Decoder a -> (List (Maybe a) -> msg) -> Sub msg
+watchSub : Decoder a -> (Result Error (List (Maybe a)) -> msg) -> Sub msg
 watchSub decoder tagger =
-    decodeList decoder tagger |> watchSubscription
+    listTagger decoder tagger |> watchSubscription
 
 
 fetchCmd : CollectionName -> Cmd msg
@@ -117,9 +144,9 @@ fetchCmd =
     fetchPort
 
 
-fetchSub : Decoder a -> (List (Maybe a) -> msg) -> Sub msg
+fetchSub : Decoder a -> (Result Error (List (Maybe a)) -> msg) -> Sub msg
 fetchSub decoder tagger =
-    decodeList decoder tagger |> fetchSubscription
+    listTagger decoder tagger |> fetchSubscription
 
 
 removeAllCmd : CollectionName -> List Json.Value -> Cmd msg
@@ -127,13 +154,12 @@ removeAllCmd collectionName ids =
     curry removeAllPort collectionName ids
 
 
-removeAllSub : Decoder a -> (Task String a -> msg) -> Sub msg
-removeAllSub decoder tagger =
-    decode decoder tagger |> removeAllSubscription
+removeAllSub : (Result Error () -> msg) -> Sub msg
+removeAllSub tagger =
+    responseTagger tagger |> removeAllSubscription
 
 
 
--- Collection.subscribe
 -- Collection.above
 -- Collection.below
 -- Collection.find

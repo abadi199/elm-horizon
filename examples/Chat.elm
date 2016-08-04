@@ -8,7 +8,7 @@ import Json.Decode as Json
 import Json.Encode as Encode
 import Horizon
 import Json.Decode.Pipeline as Decode
-import Task exposing (Task)
+import Result exposing (Result)
 
 
 main : Program Never
@@ -30,8 +30,17 @@ collectionName =
     "chat"
 
 
+type alias Error =
+    String
+
+
+type alias Id =
+    String
+
+
 type alias Model =
     { state : ChatState
+    , error : Maybe Error
     , name : String
     , input : Message
     , messages : List Message
@@ -74,11 +83,12 @@ messageIdEncoder message =
 init : ( Model, Cmd Msg )
 init =
     ( { state = EnterName
+      , error = Nothing
       , name = ""
       , input = { id = "", name = "", value = "" }
       , messages = []
       }
-    , Horizon.watchCmd collectionName
+    , Cmd.none
     )
 
 
@@ -86,22 +96,15 @@ init =
 -- UPDATE
 
 
-type alias Error =
-    String
-
-
-type alias Id =
-    String
-
-
 type Msg
     = Input String
     | Send
-    | SendResponse (Task Error Id)
-    | NewMessage (List (Maybe Message))
+    | SendResponse (Result Error Id)
+    | NewMessage (Result Error (List (Maybe Message)))
     | UpdateName String
     | EnterChat
     | DeleteAll
+    | DeleteAllResponse (Result Error ())
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -111,30 +114,8 @@ update msg model =
             ( { model | input = { id = "", name = model.name, value = newInput } }, Cmd.none )
 
         Send ->
-            ( { model | input = { id = "", name = model.name, value = "" } }
+            ( model
             , Horizon.storeCmd collectionName (messageEncoder model.input)
-            )
-
-        NewMessage msgs ->
-            ( { model
-                | messages =
-                    msgs
-                        |> List.filterMap identity
-              }
-            , Cmd.none
-            )
-
-        UpdateName newName ->
-            ( { model | name = newName }, Cmd.none )
-
-        EnterChat ->
-            ( { model | state = Chat }, Cmd.none )
-
-        DeleteAll ->
-            ( { model | messages = [] }
-            , findMyMessages model
-                |> List.map messageIdEncoder
-                |> Horizon.removeAllCmd collectionName
             )
 
         SendResponse result ->
@@ -142,7 +123,51 @@ update msg model =
                 _ =
                     Debug.log "SendResponse" result
             in
-                ( model, Cmd.none )
+                case result of
+                    Err error ->
+                        ( { model | error = Just error }
+                        , Cmd.none
+                        )
+
+                    _ ->
+                        ( { model | input = { id = "", name = model.name, value = "" } }
+                        , Cmd.none
+                        )
+
+        NewMessage result ->
+            case result of
+                Result.Err error ->
+                    ( { model | error = Just error }, Cmd.none )
+
+                Ok messages ->
+                    ( { model
+                        | messages =
+                            messages
+                                |> List.filterMap identity
+                      }
+                    , Cmd.none
+                    )
+
+        UpdateName newName ->
+            ( { model | name = newName }, Cmd.none )
+
+        EnterChat ->
+            ( { model | state = Chat }, Horizon.watchCmd collectionName )
+
+        DeleteAll ->
+            ( model
+            , model.messages
+                |> List.map messageIdEncoder
+                |> Horizon.removeAllCmd collectionName
+            )
+
+        DeleteAllResponse result ->
+            case Debug.log "DeleteAllResponse" result of
+                Err error ->
+                    ( { model | error = Just error }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
 
 findMyMessages : Model -> List Message
@@ -160,6 +185,7 @@ subscriptions model =
     Sub.batch
         [ Horizon.watchSub messageDecoder NewMessage
         , Horizon.storeSub SendResponse
+        , Horizon.removeAllSub DeleteAllResponse
         ]
 
 
@@ -187,7 +213,8 @@ view model =
 
         Chat ->
             div []
-                [ p [] [ text <| "Logged in as: " ++ model.name ]
+                [ viewError model.error
+                , p [] [ text <| "Logged in as: " ++ model.name ]
                 , p []
                     [ (input
                         [ onInput Input
@@ -225,3 +252,10 @@ onEnter message =
 viewMessage : Message -> Html msg
 viewMessage msg =
     div [] [ b [] [ text <| msg.name ++ ": " ], text msg.value ]
+
+
+viewError : Maybe Error -> Html msg
+viewError maybeError =
+    maybeError
+        |> Maybe.map (\error -> p [ style [ ( "color", "red" ) ] ] [ text error ])
+        |> Maybe.withDefault (text "")

@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "hz serve --dev --serve-static . | elm-live examples/*.elm --output dist/bundle.js --dir=./dist/",
+    "hz": "hz serve --dev --serve-static .",
+    "elm": "elm-live examples/*.elm --output dist/bundle.js --dir=./dist/",
     "postinstall": "elm package install"
   },
   "repository": {
