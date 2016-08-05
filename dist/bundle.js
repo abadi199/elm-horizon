@@ -7831,15 +7831,119 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _user$project$Horizon$directionToValue = function (direction) {
+	var _p0 = direction;
+	if (_p0.ctor === 'Ascending') {
+		return _elm_lang$core$Json_Encode$string('ascending');
+	} else {
+		return _elm_lang$core$Json_Encode$string('descending');
+	}
+};
+var _user$project$Horizon$toValue = function (modifier) {
+	var _p1 = modifier;
+	switch (_p1.ctor) {
+		case 'Above':
+			return _elm_lang$core$Json_Encode$object(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{
+						ctor: '_Tuple2',
+						_0: 'modifier',
+						_1: _elm_lang$core$Json_Encode$string('above')
+					},
+						{ctor: '_Tuple2', _0: 'value', _1: _p1._0}
+					]));
+		case 'Below':
+			return _elm_lang$core$Json_Encode$object(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{
+						ctor: '_Tuple2',
+						_0: 'modifier',
+						_1: _elm_lang$core$Json_Encode$string('below')
+					},
+						{ctor: '_Tuple2', _0: 'value', _1: _p1._0}
+					]));
+		case 'Find':
+			return _elm_lang$core$Json_Encode$object(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{
+						ctor: '_Tuple2',
+						_0: 'modifier',
+						_1: _elm_lang$core$Json_Encode$string('find')
+					},
+						{ctor: '_Tuple2', _0: 'value', _1: _p1._0}
+					]));
+		case 'FindAll':
+			return _elm_lang$core$Json_Encode$object(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{
+						ctor: '_Tuple2',
+						_0: 'modifier',
+						_1: _elm_lang$core$Json_Encode$string('findAll')
+					},
+						{
+						ctor: '_Tuple2',
+						_0: 'value',
+						_1: _elm_lang$core$Json_Encode$list(_p1._0)
+					}
+					]));
+		case 'Limit':
+			return _elm_lang$core$Json_Encode$object(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{
+						ctor: '_Tuple2',
+						_0: 'modifier',
+						_1: _elm_lang$core$Json_Encode$string('limit')
+					},
+						{
+						ctor: '_Tuple2',
+						_0: 'value',
+						_1: _elm_lang$core$Json_Encode$int(_p1._0)
+					}
+					]));
+		default:
+			return _elm_lang$core$Json_Encode$object(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{
+						ctor: '_Tuple2',
+						_0: 'modifier',
+						_1: _elm_lang$core$Json_Encode$string('order')
+					},
+						{
+						ctor: '_Tuple2',
+						_0: 'value',
+						_1: _elm_lang$core$Json_Encode$object(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{
+									ctor: '_Tuple2',
+									_0: 'field',
+									_1: _elm_lang$core$Json_Encode$string(_p1._0)
+								},
+									{
+									ctor: '_Tuple2',
+									_0: 'direction',
+									_1: _user$project$Horizon$directionToValue(_p1._1)
+								}
+								]))
+					}
+					]));
+	}
+};
 var _user$project$Horizon$responseTagger = F2(
 	function (tagger, response) {
 		var result = function () {
-			var _p0 = response.error;
-			if (_p0.ctor === 'Nothing') {
+			var _p2 = response.error;
+			if (_p2.ctor === 'Nothing') {
 				return _elm_lang$core$Result$Ok(
 					{ctor: '_Tuple0'});
 			} else {
-				return _elm_lang$core$Result$Err(_p0._0);
+				return _elm_lang$core$Result$Err(_p2._0);
 			}
 		}();
 		return tagger(result);
@@ -7855,9 +7959,9 @@ var _user$project$Horizon$listTagger = F3(
 			A2(
 				_elm_lang$core$Result$map,
 				_elm_lang$core$List$map(
-					function (_p1) {
+					function (_p3) {
 						return _elm_lang$core$Result$toMaybe(
-							A2(_elm_lang$core$Json_Decode$decodeValue, decoder, _p1));
+							A2(_elm_lang$core$Json_Decode$decodeValue, decoder, _p3));
 					}),
 				A2(
 					_elm_lang$core$Result$fromMaybe,
@@ -7965,94 +8069,6 @@ var _user$project$Horizon$upsertSub = function (tagger) {
 	return _user$project$Horizon$upsertSubscription(
 		_user$project$Horizon$responseTagger(tagger));
 };
-var _user$project$Horizon$watchPort = _elm_lang$core$Native_Platform.outgoingPort(
-	'watchPort',
-	function (v) {
-		return v;
-	});
-var _user$project$Horizon$watchCmd = _user$project$Horizon$watchPort;
-var _user$project$Horizon$watchSubscription = _elm_lang$core$Native_Platform.incomingPort(
-	'watchSubscription',
-	A2(
-		_elm_lang$core$Json_Decode$andThen,
-		A2(
-			_elm_lang$core$Json_Decode_ops[':='],
-			'values',
-			_elm_lang$core$Json_Decode$oneOf(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(
-						_elm_lang$core$Json_Decode$map,
-						_elm_lang$core$Maybe$Just,
-						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value))
-					]))),
-		function (values) {
-			return A2(
-				_elm_lang$core$Json_Decode$andThen,
-				A2(
-					_elm_lang$core$Json_Decode_ops[':='],
-					'error',
-					_elm_lang$core$Json_Decode$oneOf(
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
-							]))),
-				function (error) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{values: values, error: error});
-				});
-		}));
-var _user$project$Horizon$watchSub = F2(
-	function (decoder, tagger) {
-		return _user$project$Horizon$watchSubscription(
-			A2(_user$project$Horizon$listTagger, decoder, tagger));
-	});
-var _user$project$Horizon$fetchPort = _elm_lang$core$Native_Platform.outgoingPort(
-	'fetchPort',
-	function (v) {
-		return v;
-	});
-var _user$project$Horizon$fetchCmd = _user$project$Horizon$fetchPort;
-var _user$project$Horizon$fetchSubscription = _elm_lang$core$Native_Platform.incomingPort(
-	'fetchSubscription',
-	A2(
-		_elm_lang$core$Json_Decode$andThen,
-		A2(
-			_elm_lang$core$Json_Decode_ops[':='],
-			'values',
-			_elm_lang$core$Json_Decode$oneOf(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(
-						_elm_lang$core$Json_Decode$map,
-						_elm_lang$core$Maybe$Just,
-						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value))
-					]))),
-		function (values) {
-			return A2(
-				_elm_lang$core$Json_Decode$andThen,
-				A2(
-					_elm_lang$core$Json_Decode_ops[':='],
-					'error',
-					_elm_lang$core$Json_Decode$oneOf(
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
-							]))),
-				function (error) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{values: values, error: error});
-				});
-		}));
-var _user$project$Horizon$fetchSub = F2(
-	function (decoder, tagger) {
-		return _user$project$Horizon$fetchSubscription(
-			A2(_user$project$Horizon$listTagger, decoder, tagger));
-	});
 var _user$project$Horizon$removeAllPort = _elm_lang$core$Native_Platform.outgoingPort(
 	'removeAllPort',
 	function (v) {
@@ -8179,6 +8195,120 @@ var _user$project$Horizon$replaceSub = function (tagger) {
 	return _user$project$Horizon$replaceSubscription(
 		_user$project$Horizon$responseTagger(tagger));
 };
+var _user$project$Horizon$watchPort = _elm_lang$core$Native_Platform.outgoingPort(
+	'watchPort',
+	function (v) {
+		return [
+			v._0,
+			_elm_lang$core$Native_List.toArray(v._1).map(
+			function (v) {
+				return v;
+			})
+		];
+	});
+var _user$project$Horizon$watchCmd = F2(
+	function (collectionName, modifiers) {
+		return A3(
+			_elm_lang$core$Basics$curry,
+			_user$project$Horizon$watchPort,
+			collectionName,
+			A2(_elm_lang$core$List$map, _user$project$Horizon$toValue, modifiers));
+	});
+var _user$project$Horizon$watchSubscription = _elm_lang$core$Native_Platform.incomingPort(
+	'watchSubscription',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'values',
+			_elm_lang$core$Json_Decode$oneOf(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value))
+					]))),
+		function (values) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				A2(
+					_elm_lang$core$Json_Decode_ops[':='],
+					'error',
+					_elm_lang$core$Json_Decode$oneOf(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+							]))),
+				function (error) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{values: values, error: error});
+				});
+		}));
+var _user$project$Horizon$watchSub = F2(
+	function (decoder, tagger) {
+		return _user$project$Horizon$watchSubscription(
+			A2(_user$project$Horizon$listTagger, decoder, tagger));
+	});
+var _user$project$Horizon$fetchPort = _elm_lang$core$Native_Platform.outgoingPort(
+	'fetchPort',
+	function (v) {
+		return [
+			v._0,
+			_elm_lang$core$Native_List.toArray(v._1).map(
+			function (v) {
+				return v;
+			})
+		];
+	});
+var _user$project$Horizon$fetchCmd = F2(
+	function (collectionName, modifiers) {
+		return A3(
+			_elm_lang$core$Basics$curry,
+			_user$project$Horizon$fetchPort,
+			collectionName,
+			A2(_elm_lang$core$List$map, _user$project$Horizon$toValue, modifiers));
+	});
+var _user$project$Horizon$fetchSubscription = _elm_lang$core$Native_Platform.incomingPort(
+	'fetchSubscription',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		A2(
+			_elm_lang$core$Json_Decode_ops[':='],
+			'values',
+			_elm_lang$core$Json_Decode$oneOf(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$value))
+					]))),
+		function (values) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				A2(
+					_elm_lang$core$Json_Decode_ops[':='],
+					'error',
+					_elm_lang$core$Json_Decode$oneOf(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+							]))),
+				function (error) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{values: values, error: error});
+				});
+		}));
+var _user$project$Horizon$fetchSub = F2(
+	function (decoder, tagger) {
+		return _user$project$Horizon$fetchSubscription(
+			A2(_user$project$Horizon$listTagger, decoder, tagger));
+	});
 var _user$project$Horizon$IdResponse = F2(
 	function (a, b) {
 		return {id: a, error: b};
@@ -8193,12 +8323,27 @@ var _user$project$Horizon$Response = function (a) {
 var _user$project$Horizon$Next = function (a) {
 	return {ctor: 'Next', _0: a};
 };
-var _user$project$Horizon$Order = {ctor: 'Order'};
-var _user$project$Horizon$Limit = {ctor: 'Limit'};
-var _user$project$Horizon$FindAll = {ctor: 'FindAll'};
-var _user$project$Horizon$Find = {ctor: 'Find'};
-var _user$project$Horizon$Below = {ctor: 'Below'};
-var _user$project$Horizon$Above = {ctor: 'Above'};
+var _user$project$Horizon$Descending = {ctor: 'Descending'};
+var _user$project$Horizon$Ascending = {ctor: 'Ascending'};
+var _user$project$Horizon$Order = F2(
+	function (a, b) {
+		return {ctor: 'Order', _0: a, _1: b};
+	});
+var _user$project$Horizon$Limit = function (a) {
+	return {ctor: 'Limit', _0: a};
+};
+var _user$project$Horizon$FindAll = function (a) {
+	return {ctor: 'FindAll', _0: a};
+};
+var _user$project$Horizon$Find = function (a) {
+	return {ctor: 'Find', _0: a};
+};
+var _user$project$Horizon$Below = function (a) {
+	return {ctor: 'Below', _0: a};
+};
+var _user$project$Horizon$Above = function (a) {
+	return {ctor: 'Above', _0: a};
+};
 
 var _user$project$Chat$viewError = function (maybeError) {
 	return A2(
@@ -8484,7 +8629,11 @@ var _user$project$Chat$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{state: _user$project$Chat$Chat}),
-					_1: _user$project$Horizon$watchCmd(_user$project$Chat$collectionName)
+					_1: A2(
+						_user$project$Horizon$watchCmd,
+						_user$project$Chat$collectionName,
+						_elm_lang$core$Native_List.fromArray(
+							[]))
 				};
 			case 'DeleteAll':
 				return {

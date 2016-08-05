@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Json
 import Json.Encode as Encode
-import Horizon
+import Horizon exposing (Modifier(..), Direction(..))
 import Json.Decode.Pipeline as Decode
 import Result exposing (Result)
 
@@ -178,7 +178,9 @@ update msg model =
             ( { model | name = newName }, Cmd.none )
 
         EnterChat ->
-            ( { model | state = Chat }, Horizon.watchCmd collectionName )
+            ( { model | state = Chat }
+            , Horizon.watchCmd collectionName []
+            )
 
         DeleteAll ->
             ( model
