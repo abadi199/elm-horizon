@@ -1,7 +1,11 @@
 port module Horizon
     exposing
-        ( storeCmd
+        ( insertCmd
+        , insertSub
+        , storeCmd
         , storeSub
+        , upsertCmd
+        , upsertSub
         , watchCmd
         , watchSub
         , fetchCmd
@@ -12,6 +16,8 @@ port module Horizon
         , removeSub
         , updateCmd
         , updateSub
+        , replaceCmd
+        , replaceSub
         )
 
 import Json.Decode as Json exposing (Decoder)
@@ -54,10 +60,22 @@ type Msg
 -- PORTS
 
 
-port storePort : ( CollectionName, Json.Value ) -> Cmd msg
+port insertPort : ( CollectionName, List Json.Value ) -> Cmd msg
 
 
-port storeSubscription : (IdResponse -> msg) -> Sub msg
+port insertSubscription : (Response -> msg) -> Sub msg
+
+
+port storePort : ( CollectionName, List Json.Value ) -> Cmd msg
+
+
+port storeSubscription : (Response -> msg) -> Sub msg
+
+
+port upsertPort : ( CollectionName, List Json.Value ) -> Cmd msg
+
+
+port upsertSubscription : (Response -> msg) -> Sub msg
 
 
 port watchPort : CollectionName -> Cmd msg
@@ -84,10 +102,16 @@ port removePort : ( CollectionName, Json.Value ) -> Cmd msg
 port removeSubscription : (Response -> msg) -> Sub msg
 
 
-port updatePort : ( CollectionName, Json.Value ) -> Cmd msg
+port updatePort : ( CollectionName, List Json.Value ) -> Cmd msg
 
 
 port updateSubscription : (Response -> msg) -> Sub msg
+
+
+port replacePort : ( CollectionName, List Json.Value ) -> Cmd msg
+
+
+port replaceSubscription : (Response -> msg) -> Sub msg
 
 
 
@@ -128,19 +152,34 @@ responseTagger tagger response =
 -- HORIZON API
 
 
-storeCmd : CollectionName -> Json.Value -> Cmd msg
-storeCmd collectionName value =
-    curry storePort collectionName value
+insertCmd : CollectionName -> List Json.Value -> Cmd msg
+insertCmd =
+    curry insertPort
 
 
-storeSub : (Result Error Id -> msg) -> Sub msg
+insertSub : (Result Error () -> msg) -> Sub msg
+insertSub tagger =
+    responseTagger tagger |> insertSubscription
+
+
+storeCmd : CollectionName -> List Json.Value -> Cmd msg
+storeCmd =
+    curry storePort
+
+
+storeSub : (Result Error () -> msg) -> Sub msg
 storeSub tagger =
-    storeSubscription
-        (\response ->
-            response.id
-                |> Result.fromMaybe (Maybe.withDefault "Unknown error" response.error)
-                |> tagger
-        )
+    responseTagger tagger |> storeSubscription
+
+
+upsertCmd : CollectionName -> List Json.Value -> Cmd msg
+upsertCmd =
+    curry upsertPort
+
+
+upsertSub : (Result Error () -> msg) -> Sub msg
+upsertSub tagger =
+    responseTagger tagger |> upsertSubscription
 
 
 watchCmd : CollectionName -> Cmd msg
@@ -164,8 +203,8 @@ fetchSub decoder tagger =
 
 
 removeAllCmd : CollectionName -> List Json.Value -> Cmd msg
-removeAllCmd collectionName ids =
-    curry removeAllPort collectionName ids
+removeAllCmd =
+    curry removeAllPort
 
 
 removeAllSub : (Result Error () -> msg) -> Sub msg
@@ -174,8 +213,8 @@ removeAllSub tagger =
 
 
 removeCmd : CollectionName -> Json.Value -> Cmd msg
-removeCmd collectionName id =
-    curry removePort collectionName id
+removeCmd =
+    curry removePort
 
 
 removeSub : (Result Error () -> msg) -> Sub msg
@@ -183,9 +222,9 @@ removeSub tagger =
     responseTagger tagger |> removeSubscription
 
 
-updateCmd : CollectionName -> Json.Value -> Cmd msg
-updateCmd collectionName value =
-    curry updatePort collectionName value
+updateCmd : CollectionName -> List Json.Value -> Cmd msg
+updateCmd =
+    curry updatePort
 
 
 updateSub : (Result Error () -> msg) -> Sub msg
@@ -193,14 +232,20 @@ updateSub tagger =
     responseTagger tagger |> updateSubscription
 
 
+replaceCmd : CollectionName -> List Json.Value -> Cmd msg
+replaceCmd =
+    curry replacePort
 
--- Collection.above
--- Collection.below
--- Collection.find
--- Collection.findAll
--- Collection.limit
--- Collection.order
--- Collection.remove
--- Collection.insert
--- Collection.replace
--- Collection.upsert
+
+replaceSub : (Result Error () -> msg) -> Sub msg
+replaceSub tagger =
+    responseTagger tagger |> replaceSubscription
+
+
+type Modifier
+    = Above
+    | Below
+    | Find
+    | FindAll
+    | Limit
+    | Order

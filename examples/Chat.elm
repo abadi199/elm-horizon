@@ -122,7 +122,7 @@ init =
 type Msg
     = Input String
     | Send
-    | SendResponse (Result Error Id)
+    | SendResponse (Result Error ())
     | NewMessage (Result Error (List (Maybe Message)))
     | UpdateName String
     | EnterChat
@@ -145,7 +145,7 @@ update msg model =
 
         Send ->
             ( model
-            , Horizon.storeCmd collectionName (newMessageEncoder model.input)
+            , Horizon.insertCmd collectionName (newMessageEncoder model.input |> toList)
             )
 
         SendResponse result ->
@@ -228,8 +228,7 @@ update msg model =
             in
                 ( updateMessageMode ViewMode id model
                 , maybeMessage
-                    |> Debug.log "update"
-                    |> Maybe.map (messageEncoder >> Horizon.updateCmd collectionName)
+                    |> Maybe.map (messageEncoder >> toList >> Horizon.updateCmd collectionName)
                     |> Maybe.withDefault Cmd.none
                 )
 
@@ -240,6 +239,11 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+
+toList : a -> List a
+toList =
+    flip (::) []
 
 
 findMessage : Id -> Model -> Maybe Message
@@ -297,20 +301,6 @@ updateMessage updater id model =
                                         message
                                 )
                 }
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.batch
-        [ Horizon.watchSub messageDecoder NewMessage
-        , Horizon.storeSub SendResponse
-        , Horizon.removeAllSub DeleteAllResponse
-        , Horizon.updateSub UpdateResponse
-        ]
 
 
 
@@ -419,3 +409,17 @@ viewError maybeError =
     maybeError
         |> Maybe.map (\error -> p [ style [ ( "color", "red" ) ] ] [ text error ])
         |> Maybe.withDefault (text "")
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ Horizon.watchSub messageDecoder NewMessage
+        , Horizon.insertSub SendResponse
+        , Horizon.removeAllSub DeleteAllResponse
+        , Horizon.updateSub UpdateResponse
+        ]

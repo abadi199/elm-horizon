@@ -2,14 +2,33 @@
     'use strict';
     
     var elmHorizon = function elmHorizon(elmApp, horizon) {
+        elmApp.ports.insertPort.subscribe(function insertPortCb(data) {
+            var hz = horizon(data[0]);
+            hz.insert(data[1]).subscribe(function writeFunction(value) {
+                elmApp.ports.insertSubscription.send({ id: value.id, error : null });
+            }, function error(error) {
+                console.log(error);
+                elmApp.ports.insertSubscription.send({ id: null, error : error });
+            });
+        });
+
         elmApp.ports.storePort.subscribe(function storePortCb(data) {
             var hz = horizon(data[0]);
-            debugger;
             hz.store(data[1]).subscribe(function writeFunction(value) {
                 elmApp.ports.storeSubscription.send({ id: value.id, error : null });
             }, function error(error) {
                 console.log(error);
                 elmApp.ports.storeSubscription.send({ id: null, error : error });
+            });
+        });
+
+        elmApp.ports.upsertPort.subscribe(function upsertPortCb(data) {
+            var hz = horizon(data[0]);
+            hz.upsert(data[1]).subscribe(function writeFunction(value) {
+                elmApp.ports.upsertSubscription.send({ id: value.id, error : null });
+            }, function error(error) {
+                console.log(error);
+                elmApp.ports.upsertSubscription.send({ id: null, error : error });
             });
         });
 
@@ -50,12 +69,20 @@
         });
 
         elmApp.ports.updatePort.subscribe(function updatePortCb(data) {
-            console.log(data[1]);
             var hz = horizon(data[0]);
             hz.update(data[1]).subscribe(function completed(message) {
                 elmApp.ports.updateSubscription.send({ error: null });                
             }, function error(error) {
                 elmApp.ports.updateSubscription.send({ error: error });                
+            });
+        });
+
+        elmApp.ports.replacePort.subscribe(function replacePortCb(data) {
+            var hz = horizon(data[0]);
+            hz.replace(data[1]).subscribe(function completed(message) {
+                elmApp.ports.replaceSubscription.send({ error: null });                
+            }, function error(error) {
+                elmApp.ports.replaceSubscription.send({ error: error });                
             });
         });
     }

@@ -108,4 +108,5 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Chat.subscriptions model.chat |> Sub.map ChatMsg
+        , Search.subscriptions model.search |> Sub.map SearchMsg
         ]
