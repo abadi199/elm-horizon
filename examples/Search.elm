@@ -4,7 +4,7 @@ import Html.App
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Horizon
+import Horizon exposing (Modifier(..))
 import Json.Encode as Encode
 import Json.Decode as Json
 import Json.Decode.Pipeline as Decode
@@ -32,6 +32,7 @@ collectionName =
 type alias Model =
     { keyword : String
     , results : Maybe (List Message)
+    , error : Maybe Horizon.Error
     }
 
 
@@ -44,7 +45,9 @@ type alias Message =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { keyword = "", results = Nothing }, Cmd.none )
+    ( { keyword = "", results = Nothing, error = Nothing }
+    , Cmd.none
+    )
 
 
 keywordEncoder : String -> Json.Value
@@ -68,14 +71,10 @@ messageDecoder =
 -- MSG
 
 
-type alias Error =
-    String
-
-
 type Msg
     = Input String
     | Search
-    | SearchResponse (Result Error (List (Maybe Message)))
+    | SearchResponse (Result Horizon.Error (List (Maybe Message)))
 
 
 
@@ -89,14 +88,21 @@ update msg model =
             ( { model | keyword = keyword }, Cmd.none )
 
         Search ->
-            ( model, Cmd.none )
+            ( model
+            , Horizon.fetchCmd collectionName [ FindAll (keywordEncoder model.keyword) ]
+            )
 
         SearchResponse result ->
             let
                 _ =
-                    Debug.log "results" result
+                    Debug.log "" result
             in
-                ( model, Cmd.none )
+                case result of
+                    Err error ->
+                        ( { model | error = Just error }, Cmd.none )
+
+                    Ok searchResults ->
+                        ( { model | results = searchResults |> List.filterMap identity |> Just }, Cmd.none )
 
 
 
@@ -115,9 +121,20 @@ view model =
                 ]
                 []
             , button [ onClick Search ] [ text "Search" ]
+            , viewError model
             , viewResults model
             ]
         ]
+
+
+viewError : Model -> Html Msg
+viewError model =
+    case model.error of
+        Nothing ->
+            text ""
+
+        Just error ->
+            div [ style [ ( "color", "red" ) ] ] [ text error.message ]
 
 
 viewResults : Model -> Html Msg
@@ -145,4 +162,4 @@ viewResults model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch []
+    Sub.batch [ Horizon.fetchSub messageDecoder SearchResponse ]

@@ -7873,7 +7873,11 @@ var _user$project$Horizon$toValue = function (modifier) {
 						_0: 'modifier',
 						_1: _elm_lang$core$Json_Encode$string('find')
 					},
-						{ctor: '_Tuple2', _0: 'value', _1: _p1._0}
+						{
+						ctor: '_Tuple2',
+						_0: 'value',
+						_1: _elm_lang$core$Json_Encode$list(_p1._0)
+					}
 					]));
 		case 'FindAll':
 			return _elm_lang$core$Json_Encode$object(
@@ -7884,11 +7888,7 @@ var _user$project$Horizon$toValue = function (modifier) {
 						_0: 'modifier',
 						_1: _elm_lang$core$Json_Encode$string('findAll')
 					},
-						{
-						ctor: '_Tuple2',
-						_0: 'value',
-						_1: _elm_lang$core$Json_Encode$list(_p1._0)
-					}
+						{ctor: '_Tuple2', _0: 'value', _1: _p1._0}
 					]));
 		case 'Limit':
 			return _elm_lang$core$Json_Encode$object(
@@ -7948,11 +7948,7 @@ var _user$project$Horizon$responseTagger = F2(
 		}();
 		return tagger(result);
 	});
-var _user$project$Horizon$valueTagger = F3(
-	function (decoder, tagger, value) {
-		return tagger(
-			A2(_elm_lang$core$Json_Decode$decodeValue, decoder, value));
-	});
+var _user$project$Horizon$unknownError = {errorCode: -1, message: 'Unknown error', stack: ''};
 var _user$project$Horizon$listTagger = F3(
 	function (decoder, tagger, response) {
 		return tagger(
@@ -7965,7 +7961,7 @@ var _user$project$Horizon$listTagger = F3(
 					}),
 				A2(
 					_elm_lang$core$Result$fromMaybe,
-					A2(_elm_lang$core$Maybe$withDefault, 'Unknown error', response.error),
+					A2(_elm_lang$core$Maybe$withDefault, _user$project$Horizon$unknownError, response.error),
 					function (_) {
 						return _.values;
 					}(response))));
@@ -7993,7 +7989,26 @@ var _user$project$Horizon$insertSubscription = _elm_lang$core$Native_Platform.in
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+							function (errorCode) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+									function (message) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+											function (stack) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{errorCode: errorCode, message: message, stack: stack});
+											});
+									});
+							}))
 					]))),
 		function (error) {
 			return _elm_lang$core$Json_Decode$succeed(
@@ -8026,7 +8041,26 @@ var _user$project$Horizon$storeSubscription = _elm_lang$core$Native_Platform.inc
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+							function (errorCode) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+									function (message) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+											function (stack) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{errorCode: errorCode, message: message, stack: stack});
+											});
+									});
+							}))
 					]))),
 		function (error) {
 			return _elm_lang$core$Json_Decode$succeed(
@@ -8059,7 +8093,26 @@ var _user$project$Horizon$upsertSubscription = _elm_lang$core$Native_Platform.in
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+							function (errorCode) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+									function (message) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+											function (stack) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{errorCode: errorCode, message: message, stack: stack});
+											});
+									});
+							}))
 					]))),
 		function (error) {
 			return _elm_lang$core$Json_Decode$succeed(
@@ -8092,7 +8145,26 @@ var _user$project$Horizon$removeAllSubscription = _elm_lang$core$Native_Platform
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+							function (errorCode) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+									function (message) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+											function (stack) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{errorCode: errorCode, message: message, stack: stack});
+											});
+									});
+							}))
 					]))),
 		function (error) {
 			return _elm_lang$core$Json_Decode$succeed(
@@ -8119,7 +8191,26 @@ var _user$project$Horizon$removeSubscription = _elm_lang$core$Native_Platform.in
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+							function (errorCode) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+									function (message) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+											function (stack) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{errorCode: errorCode, message: message, stack: stack});
+											});
+									});
+							}))
 					]))),
 		function (error) {
 			return _elm_lang$core$Json_Decode$succeed(
@@ -8152,7 +8243,26 @@ var _user$project$Horizon$updateSubscription = _elm_lang$core$Native_Platform.in
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+							function (errorCode) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+									function (message) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+											function (stack) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{errorCode: errorCode, message: message, stack: stack});
+											});
+									});
+							}))
 					]))),
 		function (error) {
 			return _elm_lang$core$Json_Decode$succeed(
@@ -8185,7 +8295,26 @@ var _user$project$Horizon$replaceSubscription = _elm_lang$core$Native_Platform.i
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-						A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+						A2(
+						_elm_lang$core$Json_Decode$map,
+						_elm_lang$core$Maybe$Just,
+						A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+							function (errorCode) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+									function (message) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+											function (stack) {
+												return _elm_lang$core$Json_Decode$succeed(
+													{errorCode: errorCode, message: message, stack: stack});
+											});
+									});
+							}))
 					]))),
 		function (error) {
 			return _elm_lang$core$Json_Decode$succeed(
@@ -8240,7 +8369,26 @@ var _user$project$Horizon$watchSubscription = _elm_lang$core$Native_Platform.inc
 						_elm_lang$core$Native_List.fromArray(
 							[
 								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+								A2(
+								_elm_lang$core$Json_Decode$map,
+								_elm_lang$core$Maybe$Just,
+								A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+									function (errorCode) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+											function (message) {
+												return A2(
+													_elm_lang$core$Json_Decode$andThen,
+													A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+													function (stack) {
+														return _elm_lang$core$Json_Decode$succeed(
+															{errorCode: errorCode, message: message, stack: stack});
+													});
+											});
+									}))
 							]))),
 				function (error) {
 					return _elm_lang$core$Json_Decode$succeed(
@@ -8297,7 +8445,26 @@ var _user$project$Horizon$fetchSubscription = _elm_lang$core$Native_Platform.inc
 						_elm_lang$core$Native_List.fromArray(
 							[
 								_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
-								A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string)
+								A2(
+								_elm_lang$core$Json_Decode$map,
+								_elm_lang$core$Maybe$Just,
+								A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'errorCode', _elm_lang$core$Json_Decode$int),
+									function (errorCode) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'message', _elm_lang$core$Json_Decode$string),
+											function (message) {
+												return A2(
+													_elm_lang$core$Json_Decode$andThen,
+													A2(_elm_lang$core$Json_Decode_ops[':='], 'stack', _elm_lang$core$Json_Decode$string),
+													function (stack) {
+														return _elm_lang$core$Json_Decode$succeed(
+															{errorCode: errorCode, message: message, stack: stack});
+													});
+											});
+									}))
 							]))),
 				function (error) {
 					return _elm_lang$core$Json_Decode$succeed(
@@ -8309,11 +8476,15 @@ var _user$project$Horizon$fetchSub = F2(
 		return _user$project$Horizon$fetchSubscription(
 			A2(_user$project$Horizon$listTagger, decoder, tagger));
 	});
+var _user$project$Horizon$Error = F3(
+	function (a, b, c) {
+		return {errorCode: a, message: b, stack: c};
+	});
 var _user$project$Horizon$IdResponse = F2(
 	function (a, b) {
 		return {id: a, error: b};
 	});
-var _user$project$Horizon$ListResponse = F2(
+var _user$project$Horizon$ValuesResponse = F2(
 	function (a, b) {
 		return {values: a, error: b};
 	});
@@ -9053,11 +9224,6 @@ var _user$project$Chat$main = {
 		{init: _user$project$Chat$init, view: _user$project$Chat$view, update: _user$project$Chat$update, subscriptions: _user$project$Chat$subscriptions})
 };
 
-var _user$project$Search$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		_elm_lang$core$Native_List.fromArray(
-			[]));
-};
 var _user$project$Search$viewResults = function (model) {
 	var _p0 = model.results;
 	if (_p0.ctor === 'Nothing') {
@@ -9091,27 +9257,29 @@ var _user$project$Search$viewResults = function (model) {
 				_p0._0));
 	}
 };
-var _user$project$Search$update = F2(
-	function (msg, model) {
-		var _p1 = msg;
-		switch (_p1.ctor) {
-			case 'Input':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{keyword: _p1._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Search':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			default:
-				var _p2 = A2(_elm_lang$core$Debug$log, 'results', _p1._0);
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-		}
-	});
+var _user$project$Search$viewError = function (model) {
+	var _p1 = model.error;
+	if (_p1.ctor === 'Nothing') {
+		return _elm_lang$html$Html$text('');
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'color', _1: 'red'}
+						]))
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text(_p1._0.message)
+				]));
+	}
+};
 var _user$project$Search$keywordEncoder = function (keyword) {
-	var _p3 = A2(_elm_lang$core$Debug$log, 'keyword', keyword);
+	var _p2 = A2(_elm_lang$core$Debug$log, 'keyword', keyword);
 	return _elm_lang$core$Json_Encode$object(
 		_elm_lang$core$Native_List.fromArray(
 			[
@@ -9124,13 +9292,66 @@ var _user$project$Search$keywordEncoder = function (keyword) {
 };
 var _user$project$Search$init = {
 	ctor: '_Tuple2',
-	_0: {keyword: '', results: _elm_lang$core$Maybe$Nothing},
+	_0: {keyword: '', results: _elm_lang$core$Maybe$Nothing, error: _elm_lang$core$Maybe$Nothing},
 	_1: _elm_lang$core$Platform_Cmd$none
 };
 var _user$project$Search$collectionName = 'chat';
-var _user$project$Search$Model = F2(
-	function (a, b) {
-		return {keyword: a, results: b};
+var _user$project$Search$update = F2(
+	function (msg, model) {
+		var _p3 = msg;
+		switch (_p3.ctor) {
+			case 'Input':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{keyword: _p3._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Search':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(
+						_user$project$Horizon$fetchCmd,
+						_user$project$Search$collectionName,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_user$project$Horizon$FindAll(
+								_user$project$Search$keywordEncoder(model.keyword))
+							]))
+				};
+			default:
+				var _p6 = _p3._0;
+				var _p4 = A2(_elm_lang$core$Debug$log, '', _p6);
+				var _p5 = _p6;
+				if (_p5.ctor === 'Err') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								error: _elm_lang$core$Maybe$Just(_p5._0)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								results: _elm_lang$core$Maybe$Just(
+									A2(_elm_lang$core$List$filterMap, _elm_lang$core$Basics$identity, _p5._0))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+		}
+	});
+var _user$project$Search$Model = F3(
+	function (a, b, c) {
+		return {keyword: a, results: b, error: c};
 	});
 var _user$project$Search$Message = F3(
 	function (a, b, c) {
@@ -9151,6 +9372,13 @@ var _user$project$Search$messageDecoder = A3(
 			_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_user$project$Search$Message))));
 var _user$project$Search$SearchResponse = function (a) {
 	return {ctor: 'SearchResponse', _0: a};
+};
+var _user$project$Search$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(_user$project$Horizon$fetchSub, _user$project$Search$messageDecoder, _user$project$Search$SearchResponse)
+			]));
 };
 var _user$project$Search$Search = {ctor: 'Search'};
 var _user$project$Search$Input = function (a) {
@@ -9192,6 +9420,7 @@ var _user$project$Search$view = function (model) {
 							[
 								_elm_lang$html$Html$text('Search')
 							])),
+						_user$project$Search$viewError(model),
 						_user$project$Search$viewResults(model)
 					]))
 			]));

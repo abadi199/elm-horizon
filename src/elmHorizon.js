@@ -7,7 +7,6 @@
             hz.insert(data[1]).subscribe(function writeFunction(value) {
                 elmApp.ports.insertSubscription.send({ id: value.id, error : null });
             }, function error(error) {
-                console.log(error);
                 elmApp.ports.insertSubscription.send({ id: null, error : error });
             });
         });
@@ -17,7 +16,6 @@
             hz.store(data[1]).subscribe(function writeFunction(value) {
                 elmApp.ports.storeSubscription.send({ id: value.id, error : null });
             }, function error(error) {
-                console.log(error);
                 elmApp.ports.storeSubscription.send({ id: null, error : error });
             });
         });
@@ -27,7 +25,6 @@
             hz.upsert(data[1]).subscribe(function writeFunction(value) {
                 elmApp.ports.upsertSubscription.send({ id: value.id, error : null });
             }, function error(error) {
-                console.log(error);
                 elmApp.ports.upsertSubscription.send({ id: null, error : error });
             });
         });
@@ -68,36 +65,82 @@
             });
         });
 
-        elmApp.ports.watchPort.subscribe(function watchPortCb(data) {
-            var collectionName = data[0];
-            console.log(data);
-            var hz = horizon(collectionName);
-            var modifiers = data[1];
-            modifiers.forEach(function(element) {
-                console.log(element);                
-                if (element.modifier === "order") {
+        elmApp.ports.watchPort.subscribe(watchFactory(elmApp));
+        elmApp.ports.fetchPort.subscribe(fetchFactory(elmApp));
+    }
+
+    function applyModifier(modifiers, hz) {
+        modifiers.forEach(function(element) {
+            switch (element.modifier) {
+                case "above":
+                    hz = hz.above(element.value); 
+                    break;
+
+                case "below":
+                    hz = hz.below(element.value);
+                    break;
+
+                case "find":
+                    hz = hz.find(element.value);
+                    break;
+
+                case "findAll":
+                    hz = hz.findAll(element.value);
+                    break;
+
+                case "order":
                     hz = hz.order(element.value.field, element.value.direction);
-                } else if (element.modifier === "limit") {
+                    break;
+
+                case "limit":
                     hz = hz.limit(element.value);
-                }
-            });
+
+                default:
+                    break;
+            }
+        });
+
+        return hz;
+    }
+
+    function watchFactory(elmApp) {
+        return function watch(data) {
+            var collectionName = data[0];
+            var modifiers = data[1];
+
+            var hz = horizon(collectionName);
+            hz = applyModifier(modifiers, hz);
             hz.watch().subscribe(function next(message) {
+                message = Array.isArray(message) ? message : [ message ];
                 elmApp.ports.watchSubscription.send({ values: message, error: null });
             }, function error(error) {
                 elmApp.ports.watchSubscription.send({ values: null, error: error });
             });
-        });
+        };
+    }
 
-        elmApp.ports.fetchPort.subscribe(function fetchPortCb(data) {
+    function fetchFactory(elmApp) {
+        return function fetch(data) {
             var collectionName = data[0];
-            console.log(data);
+            var modifiers = data[1];
+
+            // var col = horizon('chat').findAll({value: 'qweqwe'}).fetch();
+            // console.log(col);
+            // col.subscribe(function(data) {
+            //     console.log(data);
+            // }, function(err) { 
+            //     console.log(err);
+            // });
+
             var hz = horizon(collectionName);
+            hz = applyModifier(modifiers, hz);
             hz.fetch().subscribe(function next(message) {
+                message = Array.isArray(message) ? message : [ message ];
                 elmApp.ports.fetchSubscription.send({ values: message, error: null });
             }, function error(error) {
                 elmApp.ports.fetchSubscription.send({ values: null, error: error });
             })
-        });
+        };
     }
 
     window.elmHorizon = elmHorizon;

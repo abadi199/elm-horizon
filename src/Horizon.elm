@@ -20,6 +20,7 @@ port module Horizon
         , replaceSub
         , Modifier(..)
         , Direction(..)
+        , Error
         )
 
 import Json.Decode as Json exposing (Decoder)
@@ -36,19 +37,27 @@ type alias Id =
 
 
 type alias Error =
-    String
+    { errorCode : Int
+    , message : String
+    , stack : String
+    }
+
+
+unknownError : Error
+unknownError =
+    { errorCode = -1, message = "Unknown error", stack = "" }
 
 
 type alias IdResponse =
-    { id : Maybe Id, error : Maybe String }
+    { id : Maybe Id, error : Maybe Error }
 
 
-type alias ListResponse =
-    { values : Maybe (List Json.Value), error : Maybe String }
+type alias ValuesResponse =
+    { values : Maybe (List Json.Value), error : Maybe Error }
 
 
 type alias Response =
-    { error : Maybe String }
+    { error : Maybe Error }
 
 
 
@@ -108,32 +117,25 @@ port replaceSubscription : (Response -> msg) -> Sub msg
 port watchPort : ( CollectionName, List Json.Value ) -> Cmd msg
 
 
-port watchSubscription : (ListResponse -> msg) -> Sub msg
+port watchSubscription : (ValuesResponse -> msg) -> Sub msg
 
 
 port fetchPort : ( CollectionName, List Json.Value ) -> Cmd msg
 
 
-port fetchSubscription : (ListResponse -> msg) -> Sub msg
+port fetchSubscription : (ValuesResponse -> msg) -> Sub msg
 
 
 
--- HELPERS
+-- ErrorRS
 
 
-listTagger : Decoder a -> (Result Error (List (Maybe a)) -> msg) -> ListResponse -> msg
+listTagger : Decoder a -> (Result Error (List (Maybe a)) -> msg) -> ValuesResponse -> msg
 listTagger decoder tagger response =
     response
         |> .values
-        |> Result.fromMaybe (Maybe.withDefault "Unknown error" response.error)
+        |> Result.fromMaybe (Maybe.withDefault unknownError response.error)
         |> Result.map (List.map (Json.decodeValue decoder >> Result.toMaybe))
-        |> tagger
-
-
-valueTagger : Decoder a -> (Result Error a -> msg) -> Json.Value -> msg
-valueTagger decoder tagger value =
-    value
-        |> Json.decodeValue decoder
         |> tagger
 
 
@@ -233,8 +235,8 @@ type Direction
 type Modifier
     = Above Json.Value
     | Below Json.Value
-    | Find Json.Value
-    | FindAll (List Json.Value)
+    | Find (List Json.Value)
+    | FindAll Json.Value
     | Limit Int
     | Order String Direction
 
@@ -258,11 +260,11 @@ toValue modifier =
         Below value ->
             Encode.object [ ( "modifier", Encode.string "below" ), ( "value", value ) ]
 
-        Find value ->
-            Encode.object [ ( "modifier", Encode.string "find" ), ( "value", value ) ]
+        Find values ->
+            Encode.object [ ( "modifier", Encode.string "find" ), ( "value", Encode.list values ) ]
 
-        FindAll values ->
-            Encode.object [ ( "modifier", Encode.string "findAll" ), ( "value", Encode.list values ) ]
+        FindAll value ->
+            Encode.object [ ( "modifier", Encode.string "findAll" ), ( "value", value ) ]
 
         Limit number ->
             Encode.object [ ( "modifier", Encode.string "limit" ), ( "value", Encode.int number ) ]
