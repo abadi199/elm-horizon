@@ -157,9 +157,9 @@ responseTagger tagger response =
 -- HORIZON API
 
 
-insertCmd : CollectionName -> List Json.Value -> Cmd msg
+insertCmd : List Json.Value -> CollectionName -> Cmd msg
 insertCmd =
-    curry insertPort
+    flippedCurry insertPort
 
 
 insertSub : (Result Error () -> msg) -> Sub msg
@@ -167,9 +167,9 @@ insertSub tagger =
     responseTagger tagger |> insertSubscription
 
 
-storeCmd : CollectionName -> List Json.Value -> Cmd msg
+storeCmd : List Json.Value -> CollectionName -> Cmd msg
 storeCmd =
-    curry storePort
+    flippedCurry storePort
 
 
 storeSub : (Result Error () -> msg) -> Sub msg
@@ -177,9 +177,9 @@ storeSub tagger =
     responseTagger tagger |> storeSubscription
 
 
-upsertCmd : CollectionName -> List Json.Value -> Cmd msg
+upsertCmd : List Json.Value -> CollectionName -> Cmd msg
 upsertCmd =
-    curry upsertPort
+    flippedCurry upsertPort
 
 
 upsertSub : (Result Error () -> msg) -> Sub msg
@@ -187,9 +187,9 @@ upsertSub tagger =
     responseTagger tagger |> upsertSubscription
 
 
-removeAllCmd : CollectionName -> List Json.Value -> Cmd msg
+removeAllCmd : List Json.Value -> CollectionName -> Cmd msg
 removeAllCmd =
-    curry removeAllPort
+    flippedCurry removeAllPort
 
 
 removeAllSub : (Result Error () -> msg) -> Sub msg
@@ -197,9 +197,9 @@ removeAllSub tagger =
     responseTagger tagger |> removeAllSubscription
 
 
-removeCmd : CollectionName -> Json.Value -> Cmd msg
+removeCmd : Json.Value -> CollectionName -> Cmd msg
 removeCmd =
-    curry removePort
+    flippedCurry removePort
 
 
 removeSub : (Result Error () -> msg) -> Sub msg
@@ -207,9 +207,9 @@ removeSub tagger =
     responseTagger tagger |> removeSubscription
 
 
-updateCmd : CollectionName -> List Json.Value -> Cmd msg
+updateCmd : List Json.Value -> CollectionName -> Cmd msg
 updateCmd =
-    curry updatePort
+    flippedCurry updatePort
 
 
 updateSub : (Result Error () -> msg) -> Sub msg
@@ -217,9 +217,9 @@ updateSub tagger =
     responseTagger tagger |> updateSubscription
 
 
-replaceCmd : CollectionName -> List Json.Value -> Cmd msg
+replaceCmd : List Json.Value -> CollectionName -> Cmd msg
 replaceCmd =
-    curry replacePort
+    flippedCurry replacePort
 
 
 replaceSub : (Result Error () -> msg) -> Sub msg
@@ -281,8 +281,8 @@ toValue modifier =
                 ]
 
 
-watchCmd : CollectionName -> List Modifier -> Cmd msg
-watchCmd collectionName modifiers =
+watchCmd : List Modifier -> CollectionName -> Cmd msg
+watchCmd modifiers collectionName =
     modifiers
         |> List.map toValue
         |> curry watchPort collectionName
@@ -293,8 +293,8 @@ watchSub decoder tagger =
     listTagger decoder tagger |> watchSubscription
 
 
-fetchCmd : CollectionName -> List Modifier -> Cmd msg
-fetchCmd collectionName modifiers =
+fetchCmd : List Modifier -> CollectionName -> Cmd msg
+fetchCmd modifiers collectionName =
     modifiers
         |> List.map toValue
         |> curry fetchPort collectionName
@@ -303,3 +303,16 @@ fetchCmd collectionName modifiers =
 fetchSub : Decoder a -> (Result Error (List (Maybe a)) -> msg) -> Sub msg
 fetchSub decoder tagger =
     listTagger decoder tagger |> fetchSubscription
+
+
+
+-- Utility
+
+
+flippedCurry =
+    flipTuple >> curry
+
+
+flipTuple : (( a, b ) -> c) -> ( b, a ) -> c
+flipTuple f ( b, a ) =
+    f ( a, b )
