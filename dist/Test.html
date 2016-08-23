@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/> 
+  </head>
+  <body>
+    
+   
+    <script src="//localhost:8181/horizon/horizon.js"></script>
+    <script src="bundle.js"></script>
+    <script src="//localhost:8181/src/elmHorizon.js"></script>
+    <script>
+        var horizon = Horizon({ host: 'localhost:8181' });
+        var messages = horizon('messages');
+        messages
+            .findAll({from: 'elm'})
+            .limit(5)
+            .watch()
+            .subscribe(function(data) { console.log(data); }); 
+
+        messages.store({ from: 'elm', msg: 'Hello World!' });
+        messages.store({ from: 'elm', msg: 'From Elm Conference' });
+        messages.store({ from: 'abadi', msg: 'Just ignore me!' });
+    </script>   
+  </body>
+</html>

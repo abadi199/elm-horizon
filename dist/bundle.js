@@ -8731,7 +8731,13 @@ var _user$project$Chat$update = F2(
 			case 'Send':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							input: _elm_lang$core$Native_Utils.update(
+								_user$project$Chat$emptyMessage,
+								{name: model.name})
+						}),
 					_1: A2(
 						_user$project$Horizon$insertCmd,
 						_user$project$Chat$collectionName,
@@ -8751,17 +8757,7 @@ var _user$project$Chat$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								input: _elm_lang$core$Native_Utils.update(
-									_user$project$Chat$emptyMessage,
-									{name: model.name})
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'NewMessage':
 				var _p5 = _p3._0;

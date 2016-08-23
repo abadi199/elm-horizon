@@ -140,7 +140,7 @@ update msg model =
             ( { model | input = { emptyMessage | name = model.name, value = newInput } }, Cmd.none )
 
         Send ->
-            ( model
+            ( { model | input = { emptyMessage | name = model.name } }
             , Horizon.insertCmd collectionName (newMessageEncoder model.input |> toList)
             )
 
@@ -152,7 +152,7 @@ update msg model =
                     )
 
                 _ ->
-                    ( { model | input = { emptyMessage | name = model.name } }
+                    ( model
                     , Cmd.none
                     )
 
