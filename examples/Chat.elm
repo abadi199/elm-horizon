@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Json
 import Json.Encode as Encode
-import Horizon exposing (Modifier(..), Direction(..))
+import Horizon exposing (Modifier(..), Direction(..), Error)
 import Json.Decode.Pipeline as Decode
 import Result exposing (Result)
 
@@ -28,10 +28,6 @@ main =
 collectionName : String
 collectionName =
     "chat"
-
-
-type alias Error =
-    String
 
 
 type alias Id =
@@ -409,7 +405,7 @@ viewMessage model msg =
 viewError : Maybe Error -> Html msg
 viewError maybeError =
     maybeError
-        |> Maybe.map (\error -> p [ style [ ( "color", "red" ) ] ] [ text error ])
+        |> Maybe.map (\error -> p [ style [ ( "color", "red" ) ] ] [ text error.message ])
         |> Maybe.withDefault (text "")
 
 

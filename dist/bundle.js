@@ -8535,7 +8535,7 @@ var _user$project$Chat$viewError = function (maybeError) {
 						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(error)
+							_elm_lang$html$Html$text(error.message)
 						]));
 			},
 			maybeError));
