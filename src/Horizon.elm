@@ -241,8 +241,8 @@ type Modifier
     | Order String Direction
 
 
-directionToValue : Direction -> Json.Value
-directionToValue direction =
+encodeDirection : Direction -> Json.Value
+encodeDirection direction =
     case direction of
         Ascending ->
             Encode.string "ascending"
@@ -251,8 +251,8 @@ directionToValue direction =
             Encode.string "descending"
 
 
-toValue : Modifier -> Json.Value
-toValue modifier =
+encodeModifier : Modifier -> Json.Value
+encodeModifier modifier =
     case modifier of
         Above value ->
             Encode.object [ ( "modifier", Encode.string "above" ), ( "value", value ) ]
@@ -275,7 +275,7 @@ toValue modifier =
                 , ( "value"
                   , Encode.object
                         [ ( "field", Encode.string field )
-                        , ( "direction", directionToValue direction )
+                        , ( "direction", encodeDirection direction )
                         ]
                   )
                 ]
@@ -284,7 +284,7 @@ toValue modifier =
 watchCmd : CollectionName -> List Modifier -> Cmd msg
 watchCmd collectionName modifiers =
     modifiers
-        |> List.map toValue
+        |> List.map encodeModifier
         |> curry watchPort collectionName
 
 
@@ -296,7 +296,7 @@ watchSub decoder tagger =
 fetchCmd : CollectionName -> List Modifier -> Cmd msg
 fetchCmd collectionName modifiers =
     modifiers
-        |> List.map toValue
+        |> List.map encodeModifier
         |> curry fetchPort collectionName
 
 
