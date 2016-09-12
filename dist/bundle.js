@@ -7831,7 +7831,7 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$project$Horizon$directionToValue = function (direction) {
+var _user$project$Horizon$encodeDirection = function (direction) {
 	var _p0 = direction;
 	if (_p0.ctor === 'Ascending') {
 		return _elm_lang$core$Json_Encode$string('ascending');
@@ -7839,7 +7839,7 @@ var _user$project$Horizon$directionToValue = function (direction) {
 		return _elm_lang$core$Json_Encode$string('descending');
 	}
 };
-var _user$project$Horizon$toValue = function (modifier) {
+var _user$project$Horizon$encodeModifier = function (modifier) {
 	var _p1 = modifier;
 	switch (_p1.ctor) {
 		case 'Above':
@@ -7928,7 +7928,7 @@ var _user$project$Horizon$toValue = function (modifier) {
 									{
 									ctor: '_Tuple2',
 									_0: 'direction',
-									_1: _user$project$Horizon$directionToValue(_p1._1)
+									_1: _user$project$Horizon$encodeDirection(_p1._1)
 								}
 								]))
 					}
@@ -8341,7 +8341,7 @@ var _user$project$Horizon$watchCmd = F2(
 			_elm_lang$core$Basics$curry,
 			_user$project$Horizon$watchPort,
 			collectionName,
-			A2(_elm_lang$core$List$map, _user$project$Horizon$toValue, modifiers));
+			A2(_elm_lang$core$List$map, _user$project$Horizon$encodeModifier, modifiers));
 	});
 var _user$project$Horizon$watchSubscription = _elm_lang$core$Native_Platform.incomingPort(
 	'watchSubscription',
@@ -8417,7 +8417,7 @@ var _user$project$Horizon$fetchCmd = F2(
 			_elm_lang$core$Basics$curry,
 			_user$project$Horizon$fetchPort,
 			collectionName,
-			A2(_elm_lang$core$List$map, _user$project$Horizon$toValue, modifiers));
+			A2(_elm_lang$core$List$map, _user$project$Horizon$encodeModifier, modifiers));
 	});
 var _user$project$Horizon$fetchSubscription = _elm_lang$core$Native_Platform.incomingPort(
 	'fetchSubscription',
