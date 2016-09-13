@@ -235,8 +235,8 @@ type Direction
 type Modifier
     = Above Json.Value
     | Below Json.Value
-    | Find Json.Value
     | FindAll (List Json.Value)
+    | Find Json.Value
     | Limit Int
     | Order String Direction
 

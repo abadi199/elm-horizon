@@ -89,7 +89,7 @@ update msg model =
 
         Search ->
             ( model
-            , Horizon.fetchCmd collectionName [ FindAll (keywordEncoder model.keyword) ]
+            , Horizon.fetchCmd collectionName [ FindAll [ keywordEncoder model.keyword ] ]
             )
 
         SearchResponse result ->

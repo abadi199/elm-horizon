@@ -7864,21 +7864,6 @@ var _user$project$Horizon$encodeModifier = function (modifier) {
 					},
 						{ctor: '_Tuple2', _0: 'value', _1: _p1._0}
 					]));
-		case 'Find':
-			return _elm_lang$core$Json_Encode$object(
-				_elm_lang$core$Native_List.fromArray(
-					[
-						{
-						ctor: '_Tuple2',
-						_0: 'modifier',
-						_1: _elm_lang$core$Json_Encode$string('find')
-					},
-						{
-						ctor: '_Tuple2',
-						_0: 'value',
-						_1: _elm_lang$core$Json_Encode$list(_p1._0)
-					}
-					]));
 		case 'FindAll':
 			return _elm_lang$core$Json_Encode$object(
 				_elm_lang$core$Native_List.fromArray(
@@ -7887,6 +7872,21 @@ var _user$project$Horizon$encodeModifier = function (modifier) {
 						ctor: '_Tuple2',
 						_0: 'modifier',
 						_1: _elm_lang$core$Json_Encode$string('findAll')
+					},
+						{
+						ctor: '_Tuple2',
+						_0: 'value',
+						_1: _elm_lang$core$Json_Encode$list(_p1._0)
+					}
+					]));
+		case 'Find':
+			return _elm_lang$core$Json_Encode$object(
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{
+						ctor: '_Tuple2',
+						_0: 'modifier',
+						_1: _elm_lang$core$Json_Encode$string('find')
 					},
 						{ctor: '_Tuple2', _0: 'value', _1: _p1._0}
 					]));
@@ -8503,11 +8503,11 @@ var _user$project$Horizon$Order = F2(
 var _user$project$Horizon$Limit = function (a) {
 	return {ctor: 'Limit', _0: a};
 };
-var _user$project$Horizon$FindAll = function (a) {
-	return {ctor: 'FindAll', _0: a};
-};
 var _user$project$Horizon$Find = function (a) {
 	return {ctor: 'Find', _0: a};
+};
+var _user$project$Horizon$FindAll = function (a) {
+	return {ctor: 'FindAll', _0: a};
 };
 var _user$project$Horizon$Below = function (a) {
 	return {ctor: 'Below', _0: a};
@@ -9314,7 +9314,10 @@ var _user$project$Search$update = F2(
 						_elm_lang$core$Native_List.fromArray(
 							[
 								_user$project$Horizon$FindAll(
-								_user$project$Search$keywordEncoder(model.keyword))
+								_elm_lang$core$Native_List.fromArray(
+									[
+										_user$project$Search$keywordEncoder(model.keyword)
+									]))
 							]))
 				};
 			default:

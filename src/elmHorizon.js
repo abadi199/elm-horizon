@@ -85,7 +85,7 @@
                     break;
 
                 case "findAll":
-                    hz = hz.findAll(element.value);
+                    hz = hz.findAll.apply(hz, element.value);
                     break;
 
                 case "order":
