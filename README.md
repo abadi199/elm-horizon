@@ -131,8 +131,8 @@ Order "timestamp" Ascending
 
 To build and run the example, clone the repo, and then from the root folder of the repo, run this command:
 ```bash
-> npm install
-> npm start
+$ npm install
+$ npm start
 ```
 
 and then open http://localhost:8000 from your browser to open the chat app, or http://localhost:8000/search.html to open the search app.
