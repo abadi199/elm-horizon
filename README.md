@@ -124,6 +124,10 @@ where `Direction` can be:
 Order "timestamp" Ascending
 ```
 
+### Examples:
+ * [Chat App Example](elm-horizon/blob/master/examples/Chat.elm "Chat App Example")
+ * [Search Example](elm-horizon/blob/master/examples/Search.elm "Search App Example")
+
 ## Authentication
 TBA
 
