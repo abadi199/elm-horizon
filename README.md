@@ -126,7 +126,7 @@ Order "timestamp" Ascending
 
 ### Examples:
  * [Chat App Example](examples/Chat.elm "Chat App Example")
- * [Search Example](examples/Search.elm "Search App Example")
+ * [Search App Example](examples/Search.elm "Search App Example")
 
 ## Authentication
 TBA
