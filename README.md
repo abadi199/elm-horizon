@@ -129,6 +129,14 @@ Order "timestamp" Ascending
  * [Chat App Example](examples/Chat.elm "Chat App Example")
  * [Search App Example](examples/Search.elm "Search App Example")
 
+To build and run the example, clone the repo, and then from the root folder of the repo, run this command:
+```bash
+> npm install
+> npm start
+```
+and then open http://localhost:8000 from your browser to open the chat app, or http://localhost:8000/search.html to open the search app.
+
+> Make sure you have Horizon and RethinkDB installed on your machine. See http://horizon.io/install/ for installation instruction. 
 ## Authentication
 TBA
 
