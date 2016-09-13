@@ -137,6 +137,7 @@ To build and run the example, clone the repo, and then from the root folder of t
 and then open http://localhost:8000 from your browser to open the chat app, or http://localhost:8000/search.html to open the search app.
 
 > Make sure you have Horizon and RethinkDB installed on your machine. See http://horizon.io/install/ for installation instruction. 
+
 ## Authentication
 TBA
 
