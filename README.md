@@ -119,6 +119,7 @@ Limit 10
 where `Direction` can be:
  * `Ascending`
  * `Descending`
+
 ##### Example: 
 ```elm
 Order "timestamp" Ascending
