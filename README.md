@@ -116,13 +116,13 @@ Limit 10
 ```
 
 #### `Order String Direction`
+where `Direction` can be:
+ * `Ascending`
+ * `Descending`
 ##### Example: 
 ```elm
 Order "timestamp" Ascending
 ```
-where `Direction` can be:
- * `Ascending`
- * `Descending`
 
 ## Authentication
 TBA
