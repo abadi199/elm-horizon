@@ -50,13 +50,9 @@ init =
     )
 
 
-keywordEncoder : String -> Json.Value
-keywordEncoder keyword =
-    let
-        _ =
-            Debug.log "keyword" keyword
-    in
-        Encode.object [ ( "value", Encode.string keyword ) ]
+fromEncoder : String -> Json.Value
+fromEncoder keyword =
+    Encode.object [ ( "name", Encode.string keyword ) ]
 
 
 messageDecoder : Json.Decoder Message
@@ -89,7 +85,7 @@ update msg model =
 
         Search ->
             ( model
-            , Horizon.fetchCmd collectionName [ FindAll [ keywordEncoder model.keyword ] ]
+            , Horizon.fetchCmd collectionName [ FindAll [ fromEncoder model.keyword ] ]
             )
 
         SearchResponse result ->

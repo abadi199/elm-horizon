@@ -9274,14 +9274,13 @@ var _user$project$Search$viewError = function (model) {
 				]));
 	}
 };
-var _user$project$Search$keywordEncoder = function (keyword) {
-	var _p2 = A2(_elm_lang$core$Debug$log, 'keyword', keyword);
+var _user$project$Search$fromEncoder = function (keyword) {
 	return _elm_lang$core$Json_Encode$object(
 		_elm_lang$core$Native_List.fromArray(
 			[
 				{
 				ctor: '_Tuple2',
-				_0: 'value',
+				_0: 'name',
 				_1: _elm_lang$core$Json_Encode$string(keyword)
 			}
 			]));
@@ -9294,14 +9293,14 @@ var _user$project$Search$init = {
 var _user$project$Search$collectionName = 'chat';
 var _user$project$Search$update = F2(
 	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p2 = msg;
+		switch (_p2.ctor) {
 			case 'Input':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{keyword: _p3._0}),
+						{keyword: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'Search':
@@ -9316,21 +9315,21 @@ var _user$project$Search$update = F2(
 								_user$project$Horizon$FindAll(
 								_elm_lang$core$Native_List.fromArray(
 									[
-										_user$project$Search$keywordEncoder(model.keyword)
+										_user$project$Search$fromEncoder(model.keyword)
 									]))
 							]))
 				};
 			default:
-				var _p6 = _p3._0;
-				var _p4 = A2(_elm_lang$core$Debug$log, '', _p6);
-				var _p5 = _p6;
-				if (_p5.ctor === 'Err') {
+				var _p5 = _p2._0;
+				var _p3 = A2(_elm_lang$core$Debug$log, '', _p5);
+				var _p4 = _p5;
+				if (_p4.ctor === 'Err') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								error: _elm_lang$core$Maybe$Just(_p5._0)
+								error: _elm_lang$core$Maybe$Just(_p4._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -9341,7 +9340,7 @@ var _user$project$Search$update = F2(
 							model,
 							{
 								results: _elm_lang$core$Maybe$Just(
-									A2(_elm_lang$core$List$filterMap, _elm_lang$core$Basics$identity, _p5._0))
+									A2(_elm_lang$core$List$filterMap, _elm_lang$core$Basics$identity, _p4._0))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
