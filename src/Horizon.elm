@@ -235,8 +235,8 @@ type Direction
 type Modifier
     = Above Json.Value
     | Below Json.Value
-    | Find (List Json.Value)
-    | FindAll Json.Value
+    | Find Json.Value
+    | FindAll (List Json.Value)
     | Limit Int
     | Order String Direction
 
@@ -260,11 +260,11 @@ encodeModifier modifier =
         Below value ->
             Encode.object [ ( "modifier", Encode.string "below" ), ( "value", value ) ]
 
-        Find values ->
-            Encode.object [ ( "modifier", Encode.string "find" ), ( "value", Encode.list values ) ]
+        FindAll values ->
+            Encode.object [ ( "modifier", Encode.string "findAll" ), ( "value", Encode.list values ) ]
 
-        FindAll value ->
-            Encode.object [ ( "modifier", Encode.string "findAll" ), ( "value", value ) ]
+        Find value ->
+            Encode.object [ ( "modifier", Encode.string "find" ), ( "value", value ) ]
 
         Limit number ->
             Encode.object [ ( "modifier", Encode.string "limit" ), ( "value", Encode.int number ) ]
