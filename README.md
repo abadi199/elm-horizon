@@ -128,6 +128,7 @@ Order "timestamp" Ascending
 ### Examples:
  * [Chat App Example](examples/Chat.elm "Chat App Example")
  * [Search App Example](examples/Search.elm "Search App Example")
+ * [Silly Chat Example](examples/SillyChat.elm "Silly Chat Example")
 
 To build and run the example, clone the repo, and then from the root folder of the repo, run this command:
 ```bash
