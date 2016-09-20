@@ -1,5 +1,7 @@
 # elm-horizon
 
+**DISCLAIMER: This is a _work in progress_, not ready for production yet. Contribution and PR are welcome! 🙂**
+
 ![Elm & Horizon Logo](images/logo.png "Elm & Horizon Logo")
 
 Thin wrapper around Horizon JavaScript client API for writing Horizon application in Elm.
