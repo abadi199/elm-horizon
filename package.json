@@ -19,12 +19,9 @@
     "url": "https://github.com/abadi199/elm-horizon/issues"
   },
   "homepage": "https://github.com/abadi199/elm-horizon#readme",
-  "devDependencies": {
-    "elm-live": "^2.4.1"
-  },
   "dependencies": {
-    "elm": "^0.17.1",
-    "elm-live": "^2.4.1",
+    "elm": "^0.18.0",
+    "elm-live": "^2.7.4",
     "horizon": "^2.0.0"
   }
 }

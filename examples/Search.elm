@@ -1,6 +1,5 @@
 module Search exposing (..)
 
-import Html.App
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -10,9 +9,9 @@ import Json.Decode as Json
 import Json.Decode.Pipeline as Decode
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Html.App.program
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -127,7 +126,7 @@ viewError : Model -> Html Msg
 viewError model =
     case model.error of
         Nothing ->
-            text ""
+            emptyNode
 
         Just error ->
             div [ style [ ( "color", "red" ) ] ] [ text error.message ]
@@ -137,7 +136,7 @@ viewResults : Model -> Html Msg
 viewResults model =
     case model.results of
         Nothing ->
-            text ""
+            emptyNode
 
         Just results ->
             ul []
@@ -150,6 +149,11 @@ viewResults model =
                                 ]
                         )
                 )
+
+
+emptyNode : Html msg
+emptyNode =
+    text ""
 
 
 

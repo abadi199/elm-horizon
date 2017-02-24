@@ -1,7 +1,6 @@
 module Chat exposing (..)
 
 import Html exposing (..)
-import Html.App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as Json
@@ -11,9 +10,9 @@ import Json.Decode.Pipeline as Decode
 import Result exposing (Result)
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Html.App.program
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -346,17 +345,15 @@ view model =
 onEnter : Msg -> Attribute Msg
 onEnter message =
     let
-        filterKey =
-            (\keyCode ->
-                if keyCode /= 13 then
-                    Err "enter"
-                else
-                    Ok keyCode
-            )
+        filterKey keyCode =
+            if keyCode /= 13 then
+                Json.fail "Key not Enter."
+            else
+                Json.succeed keyCode
 
         decoder =
-            filterKey
-                |> Json.customDecoder keyCode
+            keyCode
+                |> Json.andThen filterKey
                 |> Json.map (\_ -> message)
     in
         on "keyup" decoder
@@ -376,7 +373,7 @@ viewMessage model msg =
                         ]
                     )
                   else
-                    text ""
+                    emptyNode
                 ]
 
         EditMode ->
@@ -406,7 +403,12 @@ viewError : Maybe Error -> Html msg
 viewError maybeError =
     maybeError
         |> Maybe.map (\error -> p [ style [ ( "color", "red" ) ] ] [ text error.message ])
-        |> Maybe.withDefault (text "")
+        |> Maybe.withDefault emptyNode
+
+
+emptyNode : Html a
+emptyNode =
+    text ""
 
 
 
