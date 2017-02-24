@@ -1,3 +1,4 @@
+dist/bundle.js
 rethinkdb_data/
 elm-stuff/
 node_modules/

@@ -3,14 +3,13 @@ module SillyChat exposing (main)
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Decode
 import Json.Encode as Encode
-import Html.App
 import Html exposing (Html, text)
 import Horizon exposing (watchCmd, insertCmd, watchSub, insertSub, Error, Modifier(..))
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Html.App.program
+    Html.program
         { init = init
         , view = view
         , update = update

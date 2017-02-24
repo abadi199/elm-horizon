@@ -3,13 +3,11 @@ module Main exposing (..)
 import Chat
 import Search
 import Html exposing (..)
-import Html.App
-import Html.Attributes exposing (..)
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    Html.App.program
+    Html.program
         { init = init
         , view = view
         , update = update
@@ -91,11 +89,11 @@ view model =
         [ h1 [] [ text "Elm Horizon Examples" ]
         , section []
             [ h3 [] [ text "Chat App" ]
-            , Chat.view model.chat |> Html.App.map ChatMsg
+            , Chat.view model.chat |> Html.map ChatMsg
             ]
         , section []
             [ h3 [] [ text "Search App" ]
-            , Search.view model.search |> Html.App.map SearchMsg
+            , Search.view model.search |> Html.map SearchMsg
             ]
         ]
 
